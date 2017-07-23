@@ -8,7 +8,9 @@
 ## Ariel Herrera Fernández - 201117352
 
 # Proyecto: 
-# Arquitectura:
+# *Arquitectura:
 ## Front-end: Meteor JS + AngularMeteor
 ## Back-end: Go
 ## Bases de Datos: Couchbase
+
+*Tras reunión con cliente el stack de la arquitectura podría cambiar según requerimientos de ambiente del cliente.
