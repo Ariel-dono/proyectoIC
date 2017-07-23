@@ -1,0 +1,20 @@
+<component name="libraryTable">
+  <library name="GOPATH &lt;ConstruAPI&gt;">
+    <CLASSES>
+      <root url="file://$USER_HOME$/IdeaProjects/ConstruAPI/src/golang.org" />
+      <root url="file://$USER_HOME$/IdeaProjects/ConstruAPI/src/gopkg.in" />
+      <root url="file://$USER_HOME$/go/src/gopkg.in" />
+      <root url="file://$USER_HOME$/go/src/github.com" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$USER_HOME$/IdeaProjects/ConstruAPI/src/golang.org" />
+      <root url="file://$USER_HOME$/IdeaProjects/ConstruAPI/src/gopkg.in" />
+      <root url="file://$USER_HOME$/go/src/gopkg.in" />
+      <root url="file://$USER_HOME$/go/src/github.com" />
+    </SOURCES>
+    <excluded>
+      <root url="file://$PROJECT_DIR$" />
+    </excluded>
+  </library>
+</component>
