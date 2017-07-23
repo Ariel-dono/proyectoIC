@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="GO_MODULE" version="4">
+  <component name="Go">
+    <buildTags>
+      <option name="cgo" value="YES" />
+      <option name="compiler" value="gccgo" />
+    </buildTags>
+  </component>
+  <component name="GoLibraries">
+    <option name="urls">
+      <list>
+        <option value="file://$USER_HOME$/go" />
+      </list>
+    </option>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
+    <exclude-output />
+    <content url="file://$MODULE_DIR$" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="jdk" jdkName="Go 1.8.3" jdkType="Go SDK" />
+    <orderEntry type="library" name="GOPATH &lt;ConstruAPI&gt;" level="project" />
+  </component>
+</module>
