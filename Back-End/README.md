@@ -1,4 +1,4 @@
-# Go RESTFul Web API
+# Go RESTFul Web API MVC
 ## Servicios:
 ### 1. Usuarios
-### 2. Proyecto Áreas
+### 2. Proyectos
