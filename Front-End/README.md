@@ -1,3 +1,3 @@
-# *Meteor JS + BlazzeMeteor + Electron
-## (Actualizar a datos relevantes del proyecto)
+# Meteor JS + BlazeJS + ElectronJS
+## Aplicación para escritorio.
  
