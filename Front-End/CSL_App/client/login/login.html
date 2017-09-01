@@ -1,0 +1,30 @@
+
+<template name="login">
+    <div class="centering row">
+        <div class="col-6 s12 m6">
+            <div class="login-component card darken-1">
+                <form>
+                    <div class="card-content white-text">
+                        <div class="component-space">
+                            <h1 class="pull-center title">Construction Site Layout</h1>
+                        </div>
+                        <div class="component-space input-field col s12 input-login">
+                            <i class="material-icons prefix">account_circle</i>
+                            <input id="usernameField" type="text" value="{{username}}" class="validate">
+                            <label for="account_circle">Username</label>
+                        </div>
+                        <div class="component-space input-field col s12 input-login">
+                            <i class="material-icons prefix">lock_open</i>
+                            <input id="passField" type="password" value="{{password}}" class="validate">
+                            <label for="lock_open">Password</label>
+                        </div>
+                        <div class="component-space">
+                            <button id="signinBtn" class="element-rounded grey darken-3 waves-effect waves-light btn"><i class="material-icons left">person_add</i>Registro de usuarios</button>
+                            <button id="loginBtn" class="element-rounded teal darken-4 waves-effect waves-light btn right"><i class="material-icons left">person</i>Iniciar sesión</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>
