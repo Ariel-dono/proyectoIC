@@ -1,0 +1,53 @@
+@import "{}/node_modules/materialize-css/sass/materialize.scss";
+
+/* CSS declarations go here */
+.theme-background{
+    background-color: #d3d3d3;
+    position: fixed; 
+    top: 0; 
+    left: 0;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.element-rounded{
+    color: #d3d3d3;
+    border-radius: 40px;
+}
+
+.pull-right{
+    float: right;
+}
+
+.pull-center{
+    text-align: center;    
+}
+
+.title{
+    color: #000;
+}
+
+.login-component{
+    display: block;
+    position: relative;
+    float: none;
+    opacity: 0.9;
+    background-color: #f3f3f3;
+}
+
+.component-space{
+    margin-left: 1rem;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+.centering{
+    margin: auto;
+    width: 50%;
+    position: relative;
+}
+
+.input-login{
+    color: #000;
+}

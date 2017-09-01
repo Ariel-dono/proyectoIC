@@ -8,6 +8,12 @@ var routes = Routes{
 		InsertUser,
 	},
 	Route{
+		"UpdateUser",
+		"POST",
+		"/user/update/",
+		UpdateUser,
+	},
+	Route{
 		"GetUser",
 		"POST",
 		"/user/get/",
