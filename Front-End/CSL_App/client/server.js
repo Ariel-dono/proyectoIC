@@ -1,5 +1,9 @@
 Router.route('/', function () {
-    this.render('login');
+    this.render('startup');
+});
+
+Router.route('/login', function () {
+  this.render('login');
 });
 
 Router.route('/signin', function () {

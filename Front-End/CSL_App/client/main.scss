@@ -1,8 +1,46 @@
 @import "{}/node_modules/materialize-css/sass/materialize.scss";
 
+#map { position:absolute; top:0; bottom:0; width:100%; } 
+.mapbox-bg-blur{
+    @extend .theme-background;
+    -webkit-filter: blur(5px);
+    filter: blur(5px);
+}
+
+.mapbox-transp{
+    @extend .theme-background;
+    background-color: #000;
+}
+
+.opacity-null{
+    opacity: 0;
+}
+
+// fade-in animation
+.animated {
+    -webkit-animation-duration: 76s;
+    animation-duration:76s;
+    -webkit-animation-fill-mode: both;
+    animation-fill-mode: both;
+ }
+ 
+ @-webkit-keyframes fadeIn {
+    100% {opacity: 0;}
+    0% {opacity: 1;}
+ }
+ 
+ @keyframes fadeIn {
+    100% {opacity: 0;}
+    0% {opacity: 1;}
+ }
+ 
+ .fadeIn {
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+ }
+
 /* CSS declarations go here */
 .theme-background{
-    background-color: #d3d3d3;
     position: fixed; 
     top: 0; 
     left: 0;
