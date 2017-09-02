@@ -6,6 +6,8 @@ import {notify} from '../toast/toast';
 import './signin.html';
 
 Template.signin.onCreated(function homeOnCreated() {
+  this.accessToken = new ReactiveVar("pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ");
+  this.mapStyle = new ReactiveVar("josalvarado/cj6nv3ue212172soj1nvlyaia");
   this.username = new ReactiveVar("");
   this.password = new ReactiveVar("");
   this.repitedPassword = new ReactiveVar("");
@@ -13,6 +15,12 @@ Template.signin.onCreated(function homeOnCreated() {
 });
 
 Template.signin.helpers({
+  mapStyle(){
+    return Template.instance().mapStyle.get();
+  },
+  accessToken(){
+    return Template.instance().accessToken.get();
+  },
   username(){
     return Template.instance().username.get();
   },
@@ -30,7 +38,7 @@ Template.signin.helpers({
 Template.signin.events({
   'click #back'(event, instance) {
     event.preventDefault();
-    Router.go('/')
+    Router.go('/login')
   },
   'click #saveUser'(event, instance) {
     event.preventDefault();

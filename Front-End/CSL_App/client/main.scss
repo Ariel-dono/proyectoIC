@@ -80,11 +80,18 @@
     margin-bottom: 1rem;
 }
 
-.centering{
-    margin: auto;
-    width: 50%;
+.sizeling{
+    max-width: 50%;
     position: relative;
 }
+
+.centering{
+    position: fixed;
+    left: 50%;
+    top: 50%;
+}
+
+
 
 .input-login{
     color: #000;
