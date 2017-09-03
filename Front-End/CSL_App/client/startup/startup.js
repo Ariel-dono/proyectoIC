@@ -13,6 +13,6 @@ Template.startup.onRendered(
         });
         setTimeout(()=>{
             Router.go('/login');
-        },35000)
+        },20000)
   }
 );
