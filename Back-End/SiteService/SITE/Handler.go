@@ -3,55 +3,76 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"fmt"
 )
 
 func SaveState(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	data := make(map [string] string )
-	err := decoder.Decode(&data)
+	var instance RequestingProject
+	err := decoder.Decode(&instance)
 	if err != nil {
 		panic(err)
 	}
 	defer r.Body.Close()
-	responsefunction(w,data)
+
+	var response *Response = new(Response)
+	put(instance, response)
+
+	responseMessage(w,response)
 }
 
 func DeleteState(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 
-	data := make(map [string] string )
-	err := decoder.Decode(&data)
+	var requestedProject Request
+	err := decoder.Decode(&requestedProject)
 	if err != nil {
 		panic(err)
 	}
 	defer r.Body.Close()
-	responsefunction(w,data)
+
+	var response *Response = new(Response)
+	remove(requestedProject.Key, response)
+
+	responseMessage(w,response)
 }
 
 func GetState(w http.ResponseWriter, r *http.Request) {
 
 	decoder := json.NewDecoder(r.Body)
 
-	data := make(map [string] string )
-	err := decoder.Decode(&data)
+	var requestedProject Request
+	err := decoder.Decode(&requestedProject)
 	if err != nil {
 		panic(err)
 	}
 	defer r.Body.Close()
-	responsefunction(w,data)
+
+	var response *Response = new(Response)
+	var project *Project = new(Project)
+	getById(requestedProject.Key, project, response)
+
+	responseProject(w, project, response)
 }
 
-func responsefunction (w http.ResponseWriter,  data map [string] string) {
+func responseProject (w http.ResponseWriter, project *Project,  response *Response) {
+	if(response.Code > 0){
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		err := json.NewEncoder(w).Encode(&project)
+		if err != nil {
+			panic(err)
+		}
+	}else{
+		responseMessage(w,response)
+	}
+}
+
+func responseMessage (w http.ResponseWriter,  response *Response) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	//decoder := json.NewDecoder(r.Body)
 
-	fmt.Println(data)
-	response :=  new(Response);
-	response.Code = 10
-	response.State.Message = "Hola Mensaje recibido "
 	err := json.NewEncoder(w).Encode(&response)
 	if err != nil {
 		panic(err)
