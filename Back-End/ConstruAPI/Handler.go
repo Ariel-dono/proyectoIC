@@ -83,7 +83,6 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 			panic(err)
 		}else {
 			var user *User = new(User)
-
 			getById(userRequest.Username, user, response)
 			w.WriteHeader(http.StatusOK)
 			err = json.NewEncoder(w).Encode(user)
