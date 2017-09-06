@@ -5,19 +5,19 @@ var routes = Routes{
 	Route{
 		"SaveState",
 		"POST",
-		"/state/save/",
+		"/project/save/",
 		SaveState,
 	},
 	Route{
 		"DeleteState",
 		"POST",
-		"/state/delete/",
+		"/project/delete/",
 		DeleteState,
 	},
 	Route{
 		"GetState",
 		"POST",
-		"/state/get/",
+		"/project/get/",
 		GetState,
 	},
 }

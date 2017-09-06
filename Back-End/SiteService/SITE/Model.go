@@ -24,29 +24,45 @@ type State struct {
 	Message 	string 	 `json:"message"`
 }
 
-//Projects management
-type namespace struct {
-	Projects 	[]string	 `json:"projects"`
-	Owner 		string		 `json:"owner"`
+//Request by key
+type Request  struct {
+	Key 		string	 `json:"key"`
+}
+
+type RequestingProject struct{
+	Key		string	 `json:"key"`
+	ProjectInstance Project	 `json:"project_instance"`	
 }
 
 //Project model
-type project struct {
-	Stages		[]vectorSequence `json:"stages"`
+type Project struct {
+	Layers		[]Layer		 `json:"layers"`
 	//Information about project
 	Name 		string 		 `json:"name"`
 	Zoom 		int 		 `json:"zoom"`
-	Reference	Point		 `json:"reference"`
+}
+
+type Layer struct {
+	Stages		[]VectorSequence `json:"stages"`
+	Level 		int		 `json:"level"`
 }
 
 //Functional Areas
 //Nature types: 1. Dynamic Area, 2. Temporal Area, 3. Locked Area, 4.Machinery path 5. workers path
-type vectorSequence struct {
-	VectorsSequence []Point	 `json:"vectors_sequence"`
-	Nature		int 	 `json:"nature"`
+type VectorSequence struct {
+	VectorsSequence []Point	 	`json:"vectors_sequence"`
+	Nature		int 	 	`json:"nature"`
+	Description	string 	 	`json:"description"`
+	Variables	[]Variable	`json:"variables"`
+}
+
+//Nature: data type
+type Variable struct {
+	Name		string	 `json:"name"`
+	Content		[]byte 	 `json:"content"`
 }
 
 type Point struct {
-	X 		int 	`json:"x"`
-	Y		int 	`json:"y"`
+	X 		float64 	`json:"x"`
+	Y		float64 	`json:"y"`
 }
