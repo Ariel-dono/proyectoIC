@@ -1,6 +1,102 @@
 @import "{}/node_modules/materialize-css/sass/materialize.scss";
 
+.background-csl-pane{
+    background-color:#d3d3d3;
+    border-radius: 2px;
+}
+.addElementButton
+{
+    left:85%;
+    top:2%;
+}
+nav{
+    z-index: 10002;
+    position: fixed;
+    top:90%;
+    left: 30%;
+    right: 30%;
+    max-width: 40%;
+    opacity: 0.95;
+    border-radius: 8px;
+}
+
+.overMap{
+    position: fixed;
+    z-index: 1;
+}
+
+//Estructura paneles.
+.csl-left-pane{
+    min-height: 100%;
+    min-width: 10%;
+    height: 100%;
+    top:0px;
+    opacity: 0.95;
+}
+.csl-bottom-pane{
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+.csl-right-pane{
+    min-height: 100%;
+    min-width: 10%;
+    height: 100%;
+    left:90%;
+    top :0%;
+    opacity: 0.95;
+}
+//pruebas para determinar areas y calculos
+
+.calculation-box {
+    height: 140px;
+    width: 150px;
+    position: absolute;
+    top: 210px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, .9);
+    padding: 15px;
+    text-align: center;
+}
+
+#calculate {
+    min-height: 20px;
+    background-color: #3887be;
+    color: #fff;
+    font-family: 'Open Sans';
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    margin: 10px 0;
+}
+
+p {
+    font-family: 'Open Sans';
+    margin: 0;
+    font-size: 13px;
+}
+
+//------------------------------------------------------------------------------
+#info {
+    display: block;
+    position: relative;
+    margin: 0px auto;
+    width: 50%;
+    padding: 10px;
+    border: none;
+    border-radius: 3px;
+    font-size: 12px;
+    text-align: center;
+    color: #222;
+    background: #fff;
+    opacity: 0.4;
+}
+
 #map { position:absolute; top:0; bottom:0; width:100%; } 
+
+
+
 .mapbox-bg-blur{
     @extend .theme-background;
     -webkit-filter: blur(5px);
