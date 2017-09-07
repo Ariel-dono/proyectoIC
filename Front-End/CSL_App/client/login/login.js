@@ -46,11 +46,22 @@ Template.login.events({
           console.log(result)
           if(result !== undefined){
             if(result.code > 0){
-              Router.go('/CSL')
-              notify(result.state.message, 3000, 'rounded')
+              notify("User: " + result.state.message, 3000, 'rounded')
+              Meteor.call("getNamespace",instance.username.get(),
+              (error, result) => {
+                console.log(result)
+                if(result !== undefined){
+                  Router.go('/CSL')
+                  notify("Welcome " + result.username + "!!", 3000, 'rounded')
+                }
+                else{
+                  notify("Error creando el namespace", 3000, 'rounded')        
+                }
+              }
+            );
             }
             else{
-              notify(result.state.message, 3000, 'rounded')
+              notify("User: " + result.state.message, 3000, 'rounded')
             }
           }
           else{
