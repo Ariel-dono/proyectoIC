@@ -40,6 +40,7 @@ type Project struct {
 	//Information about project
 	Name 		string 		 `json:"name"`
 	Zoom 		int 		 `json:"zoom"`
+	Reference 	Point		 `json:"reference"`
 }
 
 type Layer struct {
