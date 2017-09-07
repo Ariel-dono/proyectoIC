@@ -1,11 +1,12 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-
+import {GlobalState} from '../global-state';
 import * as mapboxgl from 'mapbox-gl';
 import  MapboxDraw  from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
 
 import {rxjs} from 'rxjs';
+
 
 
 var flagControl=0;
@@ -27,18 +28,20 @@ Template.CSL.onCreated(function homeOnCreated() {
 Template.CSL.helpers({
     flagControl(){
         return Template.instance().flagControl.get();
-      }
+    },
+    namespace(){
+        return Template.instance().namespace.get();
+    }
 });
 
 Template.CSL.events({
-
     'click #cslnewproy'(event, instance) {
         event.preventDefault();
         Router.go('/login');
       },
     'click #cslabrirproy'(event, instance) {
         event.preventDefault();
-        Router.go('/login');
+        console.log(GlobalState.namespacing)  
       },
     'click #cslsaveproy'(event, instance) {
         event.preventDefault();
@@ -114,7 +117,6 @@ Template.CSL.events({
 })
 Template.CSL.onRendered(
     function() {
-        
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
         
         var map = new mapboxgl.Map({
@@ -197,8 +199,8 @@ Template.CSL.onRendered(
                     'fill-extrusion-opacity': .7
                 }
             }, labelLayerId);
-        });
-        
+        }
+    );
          /*
         var calcButton = document.getElementById('calculate');
 
@@ -320,5 +322,6 @@ Template.CSL.onRendered(
             });
         });
         */
+
     }
 );
