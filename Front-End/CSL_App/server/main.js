@@ -4,14 +4,22 @@ import {state} from './global.state';
 
 const login = 'user/login/';
 const signin = 'user/insert/';
+const createNamespace = 'namespace/create/';
+const getNamespace = 'namespace/get/';
 
 if (Meteor.isServer) {
     Meteor.methods({
         login: function (loginRequest) {
-            return HTTP.call("POST", state.path + login, { data:loginRequest }).data;
+            return HTTP.call("POST", state.path + state.users + login, { data:loginRequest }).data;
         },
         signin: function (signinRequest) {
-            return HTTP.call("POST", state.path + signin, { data:signinRequest }).data;
+            return HTTP.call("POST", state.path + state.users + signin, { data:signinRequest }).data;
+        },
+        createNamespace: function(username){
+            return HTTP.call("POST", state.path + state.namespace + createNamespace, { data:{username:username,projects:[]} }).data;
+        },
+        getNamespace:function(username){
+            return HTTP.call("POST", state.path + state.namespace + getNamespace, { data:{username:username} }).data;
         }
     });
 }
