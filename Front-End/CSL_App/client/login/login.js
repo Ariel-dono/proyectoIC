@@ -2,6 +2,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar, Session } from 'meteor/reactive-var';
 import {Meteor} from 'meteor/meteor';
 import {notify} from '../toast/toast';
+import {GlobalState} from '../global-state';
 
 import './login.html';
 
@@ -49,9 +50,9 @@ Template.login.events({
               notify("User: " + result.state.message, 3000, 'rounded')
               Meteor.call("getNamespace",instance.username.get(),
               (error, result) => {
-                console.log(result)
                 if(result !== undefined){
                   Router.go('/CSL')
+                  GlobalState.namespacing = result;
                   notify("Welcome " + result.username + "!!", 3000, 'rounded')
                 }
                 else{
