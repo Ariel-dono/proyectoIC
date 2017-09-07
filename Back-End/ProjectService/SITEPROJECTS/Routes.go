@@ -4,7 +4,7 @@ var routes = Routes{
 	Route{
 		"UpdateProject",
 		"POST",
-		"/namespace/update/project/",
+		"/namespace/update/projects/",
 		UpdateProject,
 	},
 	Route{
@@ -18,5 +18,11 @@ var routes = Routes{
 		"POST",
 		"/namespace/delete/",
 		DeleteNamespace,
+	},
+	Route{
+		"GetNamespace",
+		"POST",
+		"/namespace/get/",
+		GetNamespace,
 	},
 }

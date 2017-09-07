@@ -7,15 +7,27 @@ import (
 
 const bucketName string = "Namespacing";
 
-func inicialize() gocb.Bucket {
+func initialize() gocb.Bucket {
 	cluster, _ := gocb.Connect("couchbase://localhost")
 	bucket, _ := cluster.OpenBucket(bucketName, "")
 	bucket.Manager("", "").CreatePrimaryIndex("", true, false)
 	return *bucket;
 }
 
+func getNamespace(key string, namespace *Namespace, response *Response){
+	bucket := initialize()
+	_,err := bucket.Get(key, &namespace)
+	if err != nil {
+		response.Code = -1;
+		response.State.Message = "Proyecto no existe";
+	}else{
+		response.Code = 1;
+		response.State.Message = "Proyecto Eliminado";
+	}
+}
+
 func CreateBucket (user string, response *Response){
-	bucket := inicialize()
+	bucket := initialize()
 	var namespace *Namespace = new(Namespace)
 	namespace.Username = user
 	_, err := bucket.Upsert(user, namespace, 0);
@@ -30,7 +42,7 @@ func CreateBucket (user string, response *Response){
 }
 
 func DeleteBucket (user string, response *Response){
-	bucket := inicialize()
+	bucket := initialize()
 	var cas gocb.Cas
 	_, err := bucket.Remove(user, cas);
 	if err != nil {
@@ -43,7 +55,7 @@ func DeleteBucket (user string, response *Response){
 }
 
 func UpdateProjectName (user string, response *Response, namespace Namespace){
-	bucket := inicialize()
+	bucket := initialize()
 	_, err := bucket.Upsert(user, namespace, 0);
 	if err != nil {
 		response.Code = -2;
