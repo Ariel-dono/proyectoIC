@@ -21,6 +21,10 @@ type State struct {
 }
 
 type Namespace struct {
-	Username	 string	`json:"message"`
+	Username	 string	 `json:"username"`
 	ProjectNames	[]string `json:"projects"`
+}
+
+type NamespaceRequest struct {
+	Username	 string	 `json:"username"`
 }

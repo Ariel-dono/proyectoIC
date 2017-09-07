@@ -34,6 +34,34 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetNamespace(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	decoder := json.NewDecoder(r.Body)
+	var request NamespaceRequest
+	err := decoder.Decode(&request)
+	if err != nil {
+		panic(err)
+	}
+	defer r.Body.Close()
+
+	var response *Response = new(Response);
+	if (request.Username == "" ){
+		response.Code = -2;
+		response.State.Message = "Parametros invalidos";
+		err = json.NewEncoder(w).Encode(response);
+	}else {
+		var namespace *Namespace = new (Namespace)
+		getNamespace(request.Username, namespace, response)
+		w.WriteHeader(http.StatusOK)
+		err = json.NewEncoder(w).Encode(namespace)
+		if err != nil {
+			panic(err)
+			err = json.NewEncoder(w).Encode(&response)
+		}
+	}
+}
+
 func CreateNamespace(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
