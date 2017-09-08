@@ -1,16 +1,24 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+import {notify} from '../toast/toast';
+
+
 import {GlobalState} from '../global-state';
+
 import * as mapboxgl from 'mapbox-gl';
 import  MapboxDraw  from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
 
 import {rxjs} from 'rxjs';
 
+var map;
+var draw;
 
 
 var flagControl=0;
+
 const radius = 10;
+
 function pointOnCircle(lng,lat) {
     return {
         "type": "Point",
@@ -21,8 +29,66 @@ function pointOnCircle(lng,lat) {
     };
 }
 
+function setLayer(pName,pData,pColor,pType,pRadio){
+    try{
+        map.removeSource(pName);
+    }
+    catch(e){}
+    if(pType==1)
+    {
+        map.addLayer({
+            'id': pName,
+            'type': 'fill',
+            'source': {
+                'type': 'geojson',
+                'data': pData
+            },
+            'layout': {},
+            'paint': {
+                'fill-color': pColor,
+                'fill-opacity': 0.45
+            }
+        });
+    }
+    else if(pType==2){
+        map.addLayer({
+            "id": pName,
+            "type": "line",
+            "source": {
+                "type": "geojson",
+                "data": pData
+            },
+            "layout": {
+                "line-join": "round",
+                "line-cap": "round"
+            },
+            "paint": {
+                "line-color": pColor,
+                "line-width": 5
+            }
+        })
+    }
+    else if(pType==3){
+        map.addLayer({
+            "id": pName,
+            "type": "circle",
+            "source": {
+                "type": "geojson",
+                "data": pData
+            },
+            "paint": {
+                "circle-radius": pRadio,
+                "circle-color": "#B42222",
+                'circle-opacity': 0.8
+            }
+        })
+    }
+    
+}
+
 Template.CSL.onCreated(function homeOnCreated() {
     this.flagControl = new ReactiveVar(1);
+    this.projectName = new ReactiveVar('');
 });
 
 Template.CSL.helpers({
@@ -31,95 +97,103 @@ Template.CSL.helpers({
     },
     namespace(){
         return Template.instance().namespace.get();
+    },
+    projectName(){
+        return Template.instance().namespace.get();
     }
 });
 
 Template.CSL.events({
     'click #cslnewproy'(event, instance) {
         event.preventDefault();
-        Router.go('/login');
+        instance.$('#modal1').css("display", "block");
       },
     'click #cslabrirproy'(event, instance) {
         event.preventDefault();
-        console.log(GlobalState.namespacing)  
+        console.log(GlobalState.namespacing)
+        instance.$('#modal1').css("display", "block");
       },
     'click #cslsaveproy'(event, instance) {
         event.preventDefault();
-        Router.go('/login');
+        instance.$('#modal1').css("display", "block");
+      },
+    'click #closeModal'(event, instance) {
+        event.preventDefault();
+        instance.$('#modal1').css("display", "none");
+        if(GlobalState.namespacing.projects === null)
+            GlobalState.namespacing.projects=[]
+        Meteor.call("updateProjects",{
+            "username": GlobalState.namespacing.username,
+            "projects": GlobalState.namespacing.projects.push(Template.instance().namespace.get())
+          },
+          (error, result) => {
+            console.log(result)
+          }
+        )
       },
     'click #closecsl'(event, instance) {
         event.preventDefault();
         Router.go('/login');
       },
-      //Boton izquierda
-      'click #cslplano'(event, instance) {
+        //Boton izquierda
+        'click #cslplano'(event, instance) {
         event.preventDefault();
-        if(Template.instance().flagControl.get()==1){
-            notify("Establecer las area del plano", 3000, 'rounded')
+            
+            notify("Establecer las area del plano", 3000, 'rounded');
+            setLayer('cslplano',draw.getAll(),'#FFFFFF',1,0);
+        },
+        'click #cslbloqueo'(event, instance) {
+        event.preventDefault();
+            notify("Establecer las areas bloqueadas", 3000, 'rounded');
+            setLayer('cslbloqueo',draw.getAll(),'#F08080',1,0);
+        
+        },
+        'click #cslacomet'(event, instance) {
+        event.preventDefault();
+            notify("Establecer las acometidas", 3000, 'rounded');
+            setLayer('cslacomet',draw.getAll(),'#FFA500',2,0);
+        
+        },
+        'click #cslmaq'(event, instance) {
+        event.preventDefault();
+            notify("Establecer los caminos de maquinaria", 3000, 'rounded');
+            setLayer('cslmaq',draw.getAll(),'#8B4513',1,0);
+        
+        },
+        'click #cslhuella'(event, instance) {
+        event.preventDefault();
+            notify("Establecer la huella de la construcción", 3000, 'rounded');
+            setLayer('cslhuella',draw.getAll(),'#ffcc00',1,0);
+        },
+        'click #cslcivil'(event, instance) {
+        event.preventDefault();
+            notify("Establecer los caminos de civiles", 3000, 'rounded');
+            setLayer('cslcivil',draw.getAll(),'#333',2,0);
+        },
+        'click #cslgruas'(event, instance) {
+        event.preventDefault();
+            notify("Establecer las gruas", 3000, 'rounded');
+            setLayer('cslgruas',draw.getAll(),'#1E90FF',3,100);
+        },
+        'click #csllibres'(event, instance) {
+        event.preventDefault();
+            notify("Establecer las areas libres", 3000, 'rounded');
+            setLayer('csllibres',draw.getAll(),'#90EE90',1,0);
+        },
+        //Boton arriba derecha
+        'click #cslsavestruct'(event, instance) {
+        event.preventDefault();
+            notify('Insertar elemento');
+            console.log(Template.instance().flagControl.get());
+        },
+        'change #projectNameField': function(event,instance) {
+            instance.projectName.set(event.target.value);
         }
-        Router.go('/login');
-      },
-      'click #cslbloqueo'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==2){
-            notify("Establecer las areas bloqueadas", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      'click #cslacomet'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==3){
-            notify("Establecer las acometidas", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      'click #cslmaq'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==4){
-            notify("Establecer los caminos de maquinaria", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      'click #cslhuella'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==5){
-            notify("Establecer las areas bloqueadas", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      'click #cslcivil'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==6){
-            notify("Establecer las areas bloqueadas", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      'click #cslgruas'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==7){
-            notify("Establecer las areas bloqueadas", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      'click #csllibres'(event, instance) {
-        event.preventDefault();
-        if(Template.instance().flagControl.get()==8){
-            notify("Establecer las areas bloqueadas", 3000, 'rounded')
-        }
-        Router.go('/login');
-      },
-      //Boton arriba derecha
-      'click #cslsavestruct'(event, instance) {
-        event.preventDefault();
-        Template.instance().flagControl.set(Template.instance().flagControl.get()+1);
-        console.log(Template.instance().flagControl.get());
-      }
 })
 Template.CSL.onRendered(
     function() {
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
-        
-        var map = new mapboxgl.Map({
+        map = new mapboxgl.Map({
             center: [-84.10563996507328,  9.979042286713366],
             zoom: 5,
             container: 'map',
@@ -128,51 +202,17 @@ Template.CSL.onRendered(
             hash: true
         });
 
-        var draw = new MapboxDraw();
+        draw = new MapboxDraw({
+            displayControlsDefault: false,
+            controls: {
+                polygon: true,
+                trash: true
+            }
+        });
+        draw = new MapboxDraw();
         map.addControl(draw);
-        
+
         map.on('load', function () {
-            map.addLayer({
-                'id': 'maine',
-                'type': 'fill',
-                'source': {
-                    'type': 'geojson',
-                    'data': {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [[[-67.13734351262877, 45.137451890638886],
-                                [-66.96466, 44.8097],
-                                [-68.03252, 44.3252],
-                                [-69.06, 43.98],
-                                [-70.11617, 43.68405],
-                                [-70.64573401557249, 43.090083319667144],
-                                [-70.75102474636725, 43.08003225358635],
-                                [-70.79761105007827, 43.21973948828747],
-                                [-70.98176001655037, 43.36789581966826],
-                                [-70.94416541205806, 43.46633942318431],
-                                [-71.08482, 45.3052400000002],
-                                [-70.6600225491012, 45.46022288673396],
-                                [-70.30495378282376, 45.914794623389355],
-                                [-70.00014034695016, 46.69317088478567],
-                                [-69.23708614772835, 47.44777598732787],
-                                [-68.90478084987546, 47.184794623394396],
-                                [-68.23430497910454, 47.35462921812177],
-                                [-67.79035274928509, 47.066248887716995],
-                                [-67.79141211614706, 45.702585354182816],
-                                [-67.13734351262877, 45.137451890638886]]]
-                        }
-                    }
-                },
-                'layout': {},
-                'paint': {
-                    'fill-color': '#088',
-                    'fill-opacity': 0.1
-                }
-            });
-
-
-
             // Insert the layer beneath any symbol layer.
             var layers = map.getStyle().layers.reverse();
             var labelLayerIdx = layers.findIndex(function (layer) {
@@ -199,10 +239,16 @@ Template.CSL.onRendered(
                     'fill-extrusion-opacity': .7
                 }
             }, labelLayerId);
+
+        });
+        
+        /*      var calcButton = document.getElementById('calculate');
+
         }
     );
          /*
         var calcButton = document.getElementById('calculate');
+
 
         calcButton.onclick = function() {
             console.log(draw.getAll());
@@ -219,7 +265,7 @@ Template.CSL.onRendered(
             } else {
                 alert("Use the draw tools to draw a polygon!");
             }
-        };*/
+        };
 
         /*
         

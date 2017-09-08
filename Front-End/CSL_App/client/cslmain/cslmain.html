@@ -1,8 +1,7 @@
 <template name="CSL">
-    <h1>
-        <div id='map'></div>
-        
-        <!--<pre id='info'></pre>
+    <div id='map'></div>
+
+    <!--<pre id='info'></pre>
         <div class='calculation-box'>
             <p>Draw a polygon using the draw tools.</p>
             <div id='calculate' class='button button'>Calculate area</div>
@@ -14,56 +13,67 @@
              <a class="btn tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip">Hover me!</a>
         
         </div>-->
-        <div class='row overMap'> 
-            <div class='col m1 z-depth-2 overMap csl-left-pane background-csl-pane'>
-                <div class='row'>
-                    <a  id='cslplano' class="waves-effect waves-light btn">Plano del sitio</a>
-                </div>
-                <div  class='row'>
-                    <a id='cslbloqueo' class="waves-effect waves-light btn">Bloqueo</a>
-                </div>
-                <div  class='row'>
-                        <a id='cslacomet' class="waves-effect waves-light btn">Acomet</a>
-                </div>
-                <div class='row'>
-                        <a id='cslmaq' class="waves-effect waves-light btn">C.Maquina</a>
-                </div>
-                <div  class='row'>
-                        <a id='cslhuella' class="waves-effect waves-light btn">Huella C</a>
-                </div>
-                <div  class='row'>
-                        <a  id='cslcivil' class="waves-effect waves-light btn">C.Civil</a>
-                </div>
-                <div  class='row'>
-                        <a id='cslgruas' class="waves-effect waves-light btn">Gruas</a>
-                </div>
-                <div  class='row'>
-                        <a id='csllibres' class="waves-effect waves-light btn">Z.Libres</a>
-                </div>
+    <div class='row overMap'>
+        <div class='col m1 z-depth-2 overMap csl-left-pane background-csl-pane'>
+            <div class='row'>
+                <a id='cslplano' class="waves-effect waves-light btn">Plano del sitio</a>
             </div>
-            <div class='col m1 offset-m11 z-depth-2 overMap csl-right-pane background-csl-pane'>
-                    
+            <div class='row'>
+                <a id='cslbloqueo' class="waves-effect waves-light btn">Bloqueo</a>
+            </div>
+            <div class='row'>
+                <a id='cslacomet' class="waves-effect waves-light btn">Acomet</a>
+            </div>
+            <div class='row'>
+                <a id='cslmaq' class="waves-effect waves-light btn">C.Maquin</a>
+            </div>
+            <div class='row'>
+                <a id='cslhuella' class="waves-effect waves-light btn">Huella C</a>
+            </div>
+            <div class='row'>
+                <a id='cslcivil' class="waves-effect waves-light btn">C.Civil</a>
+            </div>
+            <div class='row'>
+                <a id='cslgruas' class="waves-effect waves-light btn">Gruas</a>
+            </div>
+            <div class='row'>
+                <a id='csllibres' class="waves-effect waves-light btn">Z.Libres</a>
             </div>
         </div>
-        <a class=" btn-floating btn-large waves-effect waves-light blue overMap addElementButton"><i id='cslsavestruct' class="material-icons">add</i></a>
-        
-        <div class='overMap'> 
-                <nav class="background-csl-pane csl-bottom-pane">
-                    <ul class="center">
-                        <li><a id='cslnewproy' class="waves-effect ">Nuevo Proyecto</a></li>
-                        <li><a id='cslabrirproy' class="waves-effect ">Abrir Proyecto</a></li>
-                        <li><a id='cslsaveproy' class="waves-effect ">Guardar Proyecto</a></li>
-                    </ul>
-                    <ul class="right hide-on-med-and-down">
-                        <li><a id='closecsl' class="waves-effect waves-light btn">Cerrar</a></li>
-                    </ul>
-                    
-                </nav>
-            
+        <div class='col m1 offset-m11 z-depth-2 overMap csl-right-pane background-csl-pane'>
+
         </div>
-        
-         
-        
-            
-    </h1>
+    </div>
+
+    <a class=" btn-floating btn-large waves-effect waves-light blue overMap addElementButton"><i id='cslsavestruct' class="material-icons">add</i></a>
+
+    <div class='overMap'>
+        <nav class="background-csl-pane csl-bottom-pane">
+            <ul class="center">
+                <li><a id='cslnewproy' href="#modal1" class="waves-effect ">Nuevo Proyecto</a></li>
+                <li><a id='cslabrirproy' href="#modal1" class="waves-effect ">Abrir Proyecto</a></li>
+                <li><a id='cslsaveproy' href="#modal1" class="waves-effect ">Guardar Proyecto</a></li>
+            </ul>
+            <ul class="right hide-on-med-and-down">
+                <li><a id='closecsl' class="waves-effect waves-light btn">Cerrar</a></li>
+            </ul>
+
+        </nav>
+
+    </div>
+      
+    <div id="modal1" class="modal overMap">
+        <div class="modal-content">
+            <h4>Add new project</h4>
+            <div class="component-space input-field col s12 input-login">
+                <i class="material-icons prefix">queue</i>
+                <input id="projectNameField" type="text" value="{{password}}" class="validate">
+                <label for="lock_open">Project name</label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a id="closeModal" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Create</a>
+        </div>
+    </div>
+
 </template>
