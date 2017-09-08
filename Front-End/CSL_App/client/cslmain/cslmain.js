@@ -1,13 +1,10 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-<<<<<<< HEAD
-
 import {notify} from '../toast/toast';
 
 
-=======
 import {GlobalState} from '../global-state';
->>>>>>> master
+
 import * as mapboxgl from 'mapbox-gl';
 import  MapboxDraw  from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
@@ -19,6 +16,7 @@ var draw;
 
 
 var flagControl=0;
+
 const radius = 10;
 
 function pointOnCircle(lng,lat) {
@@ -88,35 +86,50 @@ function setLayer(pName,pData,pColor,pType,pRadio){
     
 }
 
-
 Template.CSL.onCreated(function homeOnCreated() {
     this.flagControl = new ReactiveVar(1);
+    this.projectName = new ReactiveVar('');
 });
 
 Template.CSL.helpers({
     flagControl(){
         return Template.instance().flagControl.get();
-<<<<<<< HEAD
-=======
     },
     namespace(){
         return Template.instance().namespace.get();
->>>>>>> master
+    },
+    projectName(){
+        return Template.instance().namespace.get();
     }
 });
 
 Template.CSL.events({
     'click #cslnewproy'(event, instance) {
         event.preventDefault();
-        Router.go('/login');
+        instance.$('#modal1').css("display", "block");
       },
     'click #cslabrirproy'(event, instance) {
         event.preventDefault();
-        console.log(GlobalState.namespacing)  
+        console.log(GlobalState.namespacing)
+        instance.$('#modal1').css("display", "block");
       },
     'click #cslsaveproy'(event, instance) {
         event.preventDefault();
-        Router.go('/login');
+        instance.$('#modal1').css("display", "block");
+      },
+    'click #closeModal'(event, instance) {
+        event.preventDefault();
+        instance.$('#modal1').css("display", "none");
+        if(GlobalState.namespacing.projects === null)
+            GlobalState.namespacing.projects=[]
+        Meteor.call("updateProjects",{
+            "username": GlobalState.namespacing.username,
+            "projects": GlobalState.namespacing.projects.push(Template.instance().namespace.get())
+          },
+          (error, result) => {
+            console.log(result)
+          }
+        )
       },
     'click #closecsl'(event, instance) {
         event.preventDefault();
@@ -125,6 +138,7 @@ Template.CSL.events({
         //Boton izquierda
         'click #cslplano'(event, instance) {
         event.preventDefault();
+            
             notify("Establecer las area del plano", 3000, 'rounded');
             setLayer('cslplano',draw.getAll(),'#FFFFFF',1,0);
         },
@@ -171,6 +185,9 @@ Template.CSL.events({
         event.preventDefault();
             notify('Insertar elemento');
             console.log(Template.instance().flagControl.get());
+        },
+        'change #projectNameField': function(event,instance) {
+            instance.projectName.set(event.target.value);
         }
 })
 Template.CSL.onRendered(
@@ -196,47 +213,6 @@ Template.CSL.onRendered(
         map.addControl(draw);
 
         map.on('load', function () {
-            map.addLayer({
-                'id': 'maine',
-                'type': 'fill',
-                'source': {
-                    'type': 'geojson',
-                    'data': {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [[[-67.13734351262877, 45.137451890638886],
-                                [-66.96466, 44.8097],
-                                [-68.03252, 44.3252],
-                                [-69.06, 43.98],
-                                [-70.11617, 43.68405],
-                                [-70.64573401557249, 43.090083319667144],
-                                [-70.75102474636725, 43.08003225358635],
-                                [-70.79761105007827, 43.21973948828747],
-                                [-70.98176001655037, 43.36789581966826],
-                                [-70.94416541205806, 43.46633942318431],
-                                [-71.08482, 45.3052400000002],
-                                [-70.6600225491012, 45.46022288673396],
-                                [-70.30495378282376, 45.914794623389355],
-                                [-70.00014034695016, 46.69317088478567],
-                                [-69.23708614772835, 47.44777598732787],
-                                [-68.90478084987546, 47.184794623394396],
-                                [-68.23430497910454, 47.35462921812177],
-                                [-67.79035274928509, 47.066248887716995],
-                                [-67.79141211614706, 45.702585354182816],
-                                [-67.13734351262877, 45.137451890638886]]]
-                        }
-                    }
-                },
-                'layout': {},
-                'paint': {
-                    'fill-color': '#088',
-                    'fill-opacity': 0.8
-                }
-            });
-
-
-            
             // Insert the layer beneath any symbol layer.
             var layers = map.getStyle().layers.reverse();
             var labelLayerIdx = layers.findIndex(function (layer) {
@@ -263,16 +239,16 @@ Template.CSL.onRendered(
                     'fill-extrusion-opacity': .7
                 }
             }, labelLayerId);
-<<<<<<< HEAD
+
         });
         
         /*      var calcButton = document.getElementById('calculate');
-=======
+
         }
     );
          /*
         var calcButton = document.getElementById('calculate');
->>>>>>> master
+
 
         calcButton.onclick = function() {
             console.log(draw.getAll());
