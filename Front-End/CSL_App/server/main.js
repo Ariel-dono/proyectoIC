@@ -7,6 +7,7 @@ const signin = 'user/insert/';
 const createNamespace = 'namespace/create/';
 const getNamespace = 'namespace/get/';
 const addProject = 'namespace/update/projects/';
+const projectSave = 'project/save/'
 
 if (Meteor.isServer) {
     Meteor.methods({
@@ -24,6 +25,10 @@ if (Meteor.isServer) {
         },
         updateProjects:function(namespace){
             return HTTP.call("POST", state.path + state.namespace + addProject, { data:namespace }).data;
+        },
+        saveProject:function(project){
+            //parseo de informacion
+            return HTTP.call("POST",state.path + state.projects + projectSave,{data: project}).data;
         }
     });
 }

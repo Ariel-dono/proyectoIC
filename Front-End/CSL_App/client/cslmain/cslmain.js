@@ -1,8 +1,6 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import {notify} from '../toast/toast';
-
-
 import {GlobalState} from '../global-state';
 
 import * as mapboxgl from 'mapbox-gl';
@@ -11,30 +9,50 @@ import turf from '@turf/turf';
 
 import {rxjs} from 'rxjs';
 
-var map;
-var draw;
+let map;
+let draw = new MapboxDraw();
 
+//Buttons Left Panel Control: ----------
+let controlLevelNumber=0;//set the functionality on the buttons on system
+let controlDrawingId=0;//set the properties on geojson
+let controlInputRadius=15;//set radius when it is on the id: cslgruas.
 
-var flagControl=0;
+let CONTROL_ID=0;
+let CONTROL_MESSAGE=1;
+let CONTROL_COLOR=2;
 
-const radius = 10;
+let CONTROL_LIST=[
+    ['cslplano','Establecer las area del plano','#FFFFFF'],
+    ['cslbloqueo','Establecer las areas bloqueadas','#F08080'],
+    ['cslacomet','Establecer las acometidas','#FFA500'],
+    ['cslmaq','Establecer los caminos de maquinaria','#8B4513'],
+    ['cslhuella','Establecer la huella de la construcción','#ffcc00'],
+    ['cslcivil','Establecer los caminos de civiles','#333'],
+    ['cslgruas','Establecer las gruas','#1E90FF'],
+    ['csllibres','Establecer las areas libres','#90EE90']
+];
 
-function pointOnCircle(lng,lat) {
-    return {
-        "type": "Point",
-        "coordinates": [
-            lng,  
-            lat
-        ]
-    };
+function showButtonOnMapLayer(pElement){
+    list=['.mapbox-gl-draw_polygon','.mapbox-gl-draw_line','.mapbox-gl-draw_point'];
+    for(x=0 ;x<list.length;x++)
+    {
+        console.log(x);
+        if(pElement==x) Template.instance().$(list[pElement]).css("display", 'block');
+        else Template.instance().$(list[x]).css("display", 'none');
+    }
 }
 
-function setLayer(pName,pData,pColor,pType,pRadio){
+function setControlDraw(pControlDrawId){
+    controlDrawingId=pControlDrawId;
+    showButtonOnMapLayer(pControlDrawId);
+}
+
+function setLayer(pName,pData,pColor,pType,pRadio){//funcion tiene un bug visual, repinta los objetos despues e reposicionarlos
     try{
         map.removeSource(pName);
     }
     catch(e){}
-    if(pType==1)
+    if(pType==0)
     {
         map.addLayer({
             'id': pName,
@@ -50,7 +68,7 @@ function setLayer(pName,pData,pColor,pType,pRadio){
             }
         });
     }
-    else if(pType==2){
+    else if(pType==1){
         map.addLayer({
             "id": pName,
             "type": "line",
@@ -64,11 +82,11 @@ function setLayer(pName,pData,pColor,pType,pRadio){
             },
             "paint": {
                 "line-color": pColor,
-                "line-width": 5
+                "line-width": 3.5
             }
         })
     }
-    else if(pType==3){
+    else if(pType==2){
         map.addLayer({
             "id": pName,
             "type": "circle",
@@ -77,15 +95,18 @@ function setLayer(pName,pData,pColor,pType,pRadio){
                 "data": pData
             },
             "paint": {
-                "circle-radius": pRadio,
+                "circle-radius":  {
+                    'base': 1.75,
+                    'stops': [[12, 2], [23, 50]]
+                },
                 "circle-color": "#B42222",
-                'circle-opacity': 0.8
+                'circle-opacity': 0.2
             }
         })
     }
-    
 }
 
+//-------------------------------------
 Template.CSL.onCreated(function homeOnCreated() {
     this.flagControl = new ReactiveVar(1);
     this.projectName = new ReactiveVar('');
@@ -138,58 +159,64 @@ Template.CSL.events({
         //Boton izquierda
         'click #cslplano'(event, instance) {
         event.preventDefault();
-            
-            notify("Establecer las area del plano", 3000, 'rounded');
-            setLayer('cslplano',draw.getAll(),'#FFFFFF',1,0);
+            controlLevelNumber=0;
+            setControlDraw(0);
         },
         'click #cslbloqueo'(event, instance) {
         event.preventDefault();
-            notify("Establecer las areas bloqueadas", 3000, 'rounded');
-            setLayer('cslbloqueo',draw.getAll(),'#F08080',1,0);
-        
+            controlLevelNumber=1;
+            setControlDraw(0);
+            controlDrawingId=0;
+            showButtonOnMapLayer(controlDrawingId);
         },
         'click #cslacomet'(event, instance) {
         event.preventDefault();
-            notify("Establecer las acometidas", 3000, 'rounded');
-            setLayer('cslacomet',draw.getAll(),'#FFA500',2,0);
-        
+            controlLevelNumber=2;
+            setControlDraw(1);
         },
         'click #cslmaq'(event, instance) {
         event.preventDefault();
-            notify("Establecer los caminos de maquinaria", 3000, 'rounded');
-            setLayer('cslmaq',draw.getAll(),'#8B4513',1,0);
-        
+            controlLevelNumber=3;
+            setControlDraw(0);
         },
         'click #cslhuella'(event, instance) {
         event.preventDefault();
-            notify("Establecer la huella de la construcción", 3000, 'rounded');
-            setLayer('cslhuella',draw.getAll(),'#ffcc00',1,0);
+            controlLevelNumber=4;
+            setControlDraw(0);
         },
         'click #cslcivil'(event, instance) {
         event.preventDefault();
-            notify("Establecer los caminos de civiles", 3000, 'rounded');
-            setLayer('cslcivil',draw.getAll(),'#333',2,0);
+            controlLevelNumber=5;
+            setControlDraw(1);
         },
         'click #cslgruas'(event, instance) {
         event.preventDefault();
-            notify("Establecer las gruas", 3000, 'rounded');
-            setLayer('cslgruas',draw.getAll(),'#1E90FF',3,100);
+            controlLevelNumber=6;
+            controlInputRadius=20; // esto tiene que ser una entrada.
+            setControlDraw(2);
         },
         'click #csllibres'(event, instance) {
         event.preventDefault();
-            notify("Establecer las areas libres", 3000, 'rounded');
-            setLayer('csllibres',draw.getAll(),'#90EE90',1,0);
+            //Aqui hay que establecer las diferencias entre los poligonos para que queden los sectores libres.
+            controlLevelNumber=7;
+            setControlDraw(0);
         },
         //Boton arriba derecha
         'click #cslsavestruct'(event, instance) {
         event.preventDefault();
-            notify('Insertar elemento');
-            console.log(Template.instance().flagControl.get());
+            //establece el layer con source y formato de dibujo, con el id especifico.
+            setLayer(
+                CONTROL_LIST[controlLevelNumber][CONTROL_ID],
+                draw.getAll(),
+                CONTROL_LIST[controlLevelNumber][CONTROL_COLOR],
+                controlDrawingId
+            );
         },
         'change #projectNameField': function(event,instance) {
             instance.projectName.set(event.target.value);
         }
 })
+
 Template.CSL.onRendered(
     function() {
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
@@ -205,15 +232,17 @@ Template.CSL.onRendered(
         draw = new MapboxDraw({
             displayControlsDefault: false,
             controls: {
+                line_string:true,
+                point:true,
                 polygon: true,
                 trash: true
             }
         });
-        draw = new MapboxDraw();
+        
         map.addControl(draw);
+        setControlDraw(0);
 
         map.on('load', function () {
-            // Insert the layer beneath any symbol layer.
             var layers = map.getStyle().layers.reverse();
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
@@ -241,133 +270,5 @@ Template.CSL.onRendered(
             }, labelLayerId);
 
         });
-        
-        /*      var calcButton = document.getElementById('calculate');
-
-        }
-    );
-         /*
-        var calcButton = document.getElementById('calculate');
-
-
-        calcButton.onclick = function() {
-            console.log(draw.getAll());
-            console.log(draw.getAll().features[0].id);
-            console.log('lgt -> '+draw.getAll().features[0].geometry.coordinates[0][0][0]);
-            console.log('lat -> '+draw.getAll().features[0].geometry.coordinates[0][0][1]);
-            var data = draw.getAll();
-            if (data.features.length > 0) {
-                var area = turf.area(data);
-                // restrict to area to 2 decimal points
-                var rounded_area = Math.round(area*100)/100;
-                var answer = document.getElementById('calculated-area');
-                answer.innerHTML = '<p><strong>' + rounded_area + '</strong></p><p>square meters</p>';
-            } else {
-                alert("Use the draw tools to draw a polygon!");
-            }
-        };
-
-        /*
-        
-        map.on('click', function (e){
-            console.log(e.lngLat);
-            console.log(e.lngLat.lng);
-            console.log(e.lngLat.lat);
-            
-        });
-        var calcButton = document.getElementById('calculate');
-        calcButton.onclick = function() {
-            var data = draw.getAll();
-            if (data.features.length > 0) {
-                var area = turf.area(data);
-                // restrict to area to 2 decimal points
-                var rounded_area = Math.round(area*100)/100;
-                var answer = document.getElementById('calculated-area');
-                answer.innerHTML = '<p><strong>' + rounded_area + '</strong></p><p>square meters</p>';
-            } else {
-                alert("Use the draw tools to draw a polygon!");
-            }
-        };
-        
-        /* map.on('click', function (e){/*
-                console.log(e.lngLat);
-                console.log(e.lngLat.lng);
-                console.log(e.lngLat.lat);
-                
-                // Start the animation.
-                //map.getSource('points').setData(pointOnCircle(e.lngLat.lng,e.lngLat.lat));
-                map.addLayer({
-                    'id': 'maine',
-                    'type': 'fill',
-                    'source': {
-                        'type': 'geojson',
-                        'data': {
-                            'type': 'Feature',
-                            'geometry': {
-                                'type': 'Polygon',
-                                'coordinates': [[[-67.13734351262877, 45.137451890638886],
-                                    [-66.96466, 44.8097],
-                                    [-68.03252, 44.3252],
-                                    [-69.06, 43.98],
-                                    [-70.11617, 43.68405],
-                                    [-70.64573401557249, 43.090083319667144],
-                                    [-70.75102474636725, 43.08003225358635],
-                                    [-70.79761105007827, 43.21973948828747],
-                                    [-70.98176001655037, 43.36789581966826],
-                                    [-70.94416541205806, 43.46633942318431],
-                                    [-71.08482, 45.3052400000002],
-                                    [-70.6600225491012, 45.46022288673396],
-                                    [-70.30495378282376, 45.914794623389355],
-                                    [-70.00014034695016, 46.69317088478567],
-                                    [-69.23708614772835, 47.44777598732787],
-                                    [-68.90478084987546, 47.184794623394396],
-                                    [-68.23430497910454, 47.35462921812177],
-                                    [-67.79035274928509, 47.066248887716995],
-                                    [-67.79141211614706, 45.702585354182816],
-                                    [-67.13734351262877, 45.137451890638886]]]
-                            }
-                        }
-                    },
-                    'layout': {},
-                    'paint': {
-                        'fill-color': '#088',
-                        'fill-opacity': 0.1
-                    }
-                });
-
-                //map.getSource('points').setData(pointOnCircle(e.lngLat.lng,e.lngLat.lat));
-                console.log(map.getSource('maine').data);
-
-        });
-
-        map.on('mousemove', function (e) {
-            document.getElementById('info').innerHTML =
-                // e.point is the x, y coordinates of the mousemove event relative
-                // to the top-left corner of the map
-                JSON.stringify(e.point) + '<br />' +
-                // e.lngLat is the longitude, latitude geographical position of the event
-                JSON.stringify(e.lngLat);
-        });
-
-        map.on('load', function () {
-            
-            //
-            map.addSource('points', {
-                "type": "geojson",
-                "data": pointOnCircle(0,0)
-            });
-
-            map.addLayer({
-                "id": "point",
-                "source": "points",
-                "type": "circle",
-                "paint": {
-                    "circle-radius": 4,
-                    "circle-color": "#B40404"
-                }
-            });
-        });
-        */
-
     }
 );
