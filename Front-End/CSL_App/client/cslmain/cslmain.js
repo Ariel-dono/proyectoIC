@@ -248,9 +248,5 @@ Template.CSL.onRendered(
             }, labelLayerId);
 
         });
-<<<<<<< HEAD
-
-=======
->>>>>>> master
     }
 );
