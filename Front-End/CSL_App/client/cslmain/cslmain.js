@@ -1,7 +1,10 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
+<<<<<<< HEAD
+=======
 import {notify} from '../toast/toast';
 import {GlobalState} from '../global-state';
+>>>>>>> master
 
 import * as mapboxgl from 'mapbox-gl';
 import  MapboxDraw  from '@mapbox/mapbox-gl-draw';
@@ -9,6 +12,13 @@ import turf from '@turf/turf';
 
 import {rxjs} from 'rxjs';
 
+<<<<<<< HEAD
+import {notify} from '../toast/toast';
+import { GlobalState } from '../global-state';
+
+var map;
+var draw;
+=======
 let map;
 let draw = new MapboxDraw();
 
@@ -16,6 +26,7 @@ let draw = new MapboxDraw();
 let controlLevelNumber=0;//set the functionality on the buttons on system
 let controlDrawingId=0;//set the properties on geojson
 let controlInputRadius=15;//set radius when it is on the id: cslgruas.
+>>>>>>> master
 
 let CONTROL_ID=0;
 let CONTROL_MESSAGE=1;
@@ -109,7 +120,6 @@ function setLayer(pName,pData,pColor,pType,pRadio){//funcion tiene un bug visual
 //-------------------------------------
 Template.CSL.onCreated(function homeOnCreated() {
     this.flagControl = new ReactiveVar(1);
-    this.projectName = new ReactiveVar('');
 });
 
 Template.CSL.helpers({
@@ -120,101 +130,79 @@ Template.CSL.helpers({
         return Template.instance().namespace.get();
     },
     projectName(){
-        return Template.instance().namespace.get();
+        return Template.instance().projectName.get();
     }
 });
 
 Template.CSL.events({
-    'click #cslnewproy'(event, instance) {
+    'click #cslmanproy'(event, instance) {
         event.preventDefault();
-        instance.$('#modal1').css("display", "block");
-      },
-    'click #cslabrirproy'(event, instance) {
-        event.preventDefault();
+        instance.$('#modalCreate').css("display", "block");
         console.log(GlobalState.namespacing)
-        instance.$('#modal1').css("display", "block");
-      },
-    'click #cslsaveproy'(event, instance) {
-        event.preventDefault();
-        instance.$('#modal1').css("display", "block");
-      },
-    'click #closeModal'(event, instance) {
-        event.preventDefault();
-        instance.$('#modal1').css("display", "none");
-        if(GlobalState.namespacing.projects === null)
-            GlobalState.namespacing.projects=[]
-        Meteor.call("updateProjects",{
-            "username": GlobalState.namespacing.username,
-            "projects": GlobalState.namespacing.projects.push(Template.instance().namespace.get())
-          },
-          (error, result) => {
-            console.log(result)
-          }
-        )
-      },
+    },
     'click #closecsl'(event, instance) {
         event.preventDefault();
         Router.go('/login');
       },
-        //Boton izquierda
-        'click #cslplano'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=0;
-            setControlDraw(0);
-        },
-        'click #cslbloqueo'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=1;
-            setControlDraw(0);
-            controlDrawingId=0;
-            showButtonOnMapLayer(controlDrawingId);
-        },
-        'click #cslacomet'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=2;
-            setControlDraw(1);
-        },
-        'click #cslmaq'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=3;
-            setControlDraw(0);
-        },
-        'click #cslhuella'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=4;
-            setControlDraw(0);
-        },
-        'click #cslcivil'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=5;
-            setControlDraw(1);
-        },
-        'click #cslgruas'(event, instance) {
-        event.preventDefault();
-            controlLevelNumber=6;
-            controlInputRadius=20; // esto tiene que ser una entrada.
-            setControlDraw(2);
-        },
-        'click #csllibres'(event, instance) {
-        event.preventDefault();
-            //Aqui hay que establecer las diferencias entre los poligonos para que queden los sectores libres.
-            controlLevelNumber=7;
-            setControlDraw(0);
-        },
-        //Boton arriba derecha
-        'click #cslsavestruct'(event, instance) {
-        event.preventDefault();
-            //establece el layer con source y formato de dibujo, con el id especifico.
-            setLayer(
-                CONTROL_LIST[controlLevelNumber][CONTROL_ID],
-                draw.getAll(),
-                CONTROL_LIST[controlLevelNumber][CONTROL_COLOR],
-                controlDrawingId
-            );
-        },
-        'change #projectNameField': function(event,instance) {
-            instance.projectName.set(event.target.value);
-        }
+    //Boton izquierda
+    'click #cslplano'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=0;
+        setControlDraw(0);
+    },
+    'click #cslbloqueo'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=1;
+        setControlDraw(0);
+        controlDrawingId=0;
+        showButtonOnMapLayer(controlDrawingId);
+    },
+    'click #cslacomet'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=2;
+        setControlDraw(1);
+    },
+    'click #cslmaq'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=3;
+        setControlDraw(0);
+    },
+    'click #cslhuella'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=4;
+        setControlDraw(0);
+    },
+    'click #cslcivil'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=5;
+        setControlDraw(1);
+    },
+    'click #cslgruas'(event, instance) {
+    event.preventDefault();
+        controlLevelNumber=6;
+        controlInputRadius=20; // esto tiene que ser una entrada.
+        setControlDraw(2);
+    },
+    'click #csllibres'(event, instance) {
+    event.preventDefault();
+        //Aqui hay que establecer las diferencias entre los poligonos para que queden los sectores libres.
+        controlLevelNumber=7;
+        setControlDraw(0);
+    },
+    //Boton arriba derecha
+    'click #cslsavestruct'(event, instance) {
+    event.preventDefault();
+        //establece el layer con source y formato de dibujo, con el id especifico.
+        setLayer(
+            CONTROL_LIST[controlLevelNumber][CONTROL_ID],
+            draw.getAll(),
+            CONTROL_LIST[controlLevelNumber][CONTROL_COLOR],
+            controlDrawingId
+        );
+    },
+    'change #projectNameField': function(event,instance) {
+        instance.projectName.set(event.target.value);
+    }
 })
 
 Template.CSL.onRendered(
@@ -270,5 +258,9 @@ Template.CSL.onRendered(
             }, labelLayerId);
 
         });
+<<<<<<< HEAD
+
+=======
+>>>>>>> master
     }
 );

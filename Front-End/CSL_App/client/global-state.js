@@ -1,3 +1,3 @@
 export class GlobalState {
-    namespace = {}
+    namespacing = {}
 };

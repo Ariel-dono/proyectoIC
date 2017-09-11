@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"net/http"
+	"fmt"
 )
 
 func UpdateProject(w http.ResponseWriter, r *http.Request) {
@@ -17,6 +18,8 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	defer r.Body.Close()
+
+	fmt.Println(namespace);
 
 	var response *Response = new(Response);
 	if (namespace.Username == "" ){
@@ -53,11 +56,15 @@ func GetNamespace(w http.ResponseWriter, r *http.Request) {
 	}else {
 		var namespace *Namespace = new (Namespace)
 		getNamespace(request.Username, namespace, response)
-		w.WriteHeader(http.StatusOK)
-		err = json.NewEncoder(w).Encode(namespace)
-		if err != nil {
-			panic(err)
-			err = json.NewEncoder(w).Encode(&response)
+		if (namespace.Username != "") {
+			w.WriteHeader(http.StatusOK)
+			err = json.NewEncoder(w).Encode(namespace)
+			if err != nil {
+				panic(err)
+				err = json.NewEncoder(w).Encode(&response)
+			}
+		}else{
+			err = json.NewEncoder(w).Encode(response);
 		}
 	}
 }
