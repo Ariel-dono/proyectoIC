@@ -1,10 +1,5 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-<<<<<<< HEAD
-=======
-import {notify} from '../toast/toast';
-import {GlobalState} from '../global-state';
->>>>>>> master
 
 import * as mapboxgl from 'mapbox-gl';
 import  MapboxDraw  from '@mapbox/mapbox-gl-draw';
@@ -12,13 +7,9 @@ import turf from '@turf/turf';
 
 import {rxjs} from 'rxjs';
 
-<<<<<<< HEAD
 import {notify} from '../toast/toast';
 import { GlobalState } from '../global-state';
 
-var map;
-var draw;
-=======
 let map;
 let draw = new MapboxDraw();
 
@@ -26,7 +17,6 @@ let draw = new MapboxDraw();
 let controlLevelNumber=0;//set the functionality on the buttons on system
 let controlDrawingId=0;//set the properties on geojson
 let controlInputRadius=15;//set radius when it is on the id: cslgruas.
->>>>>>> master
 
 let CONTROL_ID=0;
 let CONTROL_MESSAGE=1;
