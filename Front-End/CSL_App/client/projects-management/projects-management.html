@@ -1,0 +1,29 @@
+<template name="projects_management">
+    <div id="modalCreate" class="modal overMap">
+        <div class="modal-content">
+            <h5>My projects</h5>
+            <ul class="collapsible" data-collapsible="expandable">
+                {{#each namespace.projects}}
+                    <li>   
+                        <div class="collapsible-header waves-effect waves-teal" data-value="{{@index}}">
+                            {{.}}
+                        </div>
+                        <div class="collapsible-body">
+                            <p>Lorem ipsum dolor sit amet.</p>
+                        </div>
+                    </li>
+                {{/each}}
+            </ul>
+            <h5>Add new project</h5>
+            <div class="component-space input-field col s12 input-login">
+                <i class="material-icons prefix">queue</i>
+                <input id="projectNameField" type="text" value="{{password}}" class="validate">
+                <label for="lock_open">Project name</label>
+                <a id="saveModal" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Create</a>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a id="closeModal" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+        </div>
+    </div>
+</template>
