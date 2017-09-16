@@ -32,7 +32,8 @@ nav{
 //Estructura paneles.
 .csl-left-pane{
     min-height: 100%;
-    min-width: 10%;
+    min-width: 4em;
+    max-width: 12em;
     height: 100%;
     top:0px;
     opacity: 0.95;
@@ -198,4 +199,14 @@ p {
 .collapsible-header{
     color: #d3d3d3 !important;
     background-color: #4E4F4E !important;
+}
+
+.titleProject{
+    font-size: 25px;
+    font-weight: 4px;
+    color: #000;
+}
+
+.without-translate{
+    transform: none !important;
 }

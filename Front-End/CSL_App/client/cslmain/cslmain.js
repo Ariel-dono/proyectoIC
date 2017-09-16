@@ -8,7 +8,7 @@ import turf from '@turf/turf';
 import {rxjs} from 'rxjs';
 
 import {notify} from '../toast/toast';
-import { GlobalState } from '../global-state';
+import { GlobalAppState } from '../global-state';
 
 let map;
 let draw = new MapboxDraw();
@@ -128,7 +128,19 @@ Template.CSL.events({
     'click #cslmanproy'(event, instance) {
         event.preventDefault();
         instance.$('#modalCreate').css("display", "block");
-        console.log(GlobalState.namespacing)
+        GlobalAppState.project = {
+            key:"",
+            project_instance:{
+                layers:[],
+                name:"",
+                zoom:0,
+                reference:{
+                    x:-1,
+                    y:-1
+                }
+            }
+        }
+        console.log(GlobalAppState.project)
     },
     'click #closecsl'(event, instance) {
         event.preventDefault();
@@ -189,14 +201,12 @@ Template.CSL.events({
             CONTROL_LIST[controlLevelNumber][CONTROL_COLOR],
             controlDrawingId
         );
-    },
-    'change #projectNameField': function(event,instance) {
-        instance.projectName.set(event.target.value);
     }
 })
 
 Template.CSL.onRendered(
     function() {
+        $('.button-collapse').sideNav('show')
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
         map = new mapboxgl.Map({
             center: [-84.10563996507328,  9.979042286713366],

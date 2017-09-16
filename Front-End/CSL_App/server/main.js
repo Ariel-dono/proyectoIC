@@ -2,12 +2,14 @@ import { Meteor } from 'meteor/meteor';
 import {HTTP} from 'meteor/http';
 import {state} from './global.state';
 
-const login = 'user/login/';
-const signin = 'user/insert/';
-const createNamespace = 'namespace/create/';
-const getNamespace = 'namespace/get/';
-const addProject = 'namespace/update/projects/';
+const login = 'user/login/'
+const signin = 'user/insert/'
+const createNamespace = 'namespace/create/'
+const getNamespace = 'namespace/get/'
+const addProject = 'namespace/update/projects/'
 const projectSave = 'project/save/'
+const projectGet = 'project/get/'
+const projectDelete = 'project/delete/'
 
 if (Meteor.isServer) {
     Meteor.methods({
@@ -27,8 +29,13 @@ if (Meteor.isServer) {
             return HTTP.call("POST", state.path + state.namespace + addProject, { data:namespace }).data;
         },
         saveProject:function(project){
-            //parseo de informacion
             return HTTP.call("POST",state.path + state.projects + projectSave,{data: project}).data;
+        },
+        getProject:function(project){
+            return HTTP.call("POST",state.path + state.projects + projectGet,{data: project}).data;
+        },
+        deleteProject:function(project){
+            return HTTP.call("POST",state.path + state.projects + projectDelete,{data: project}).data;
         }
     });
 }

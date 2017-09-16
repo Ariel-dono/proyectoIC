@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	"fmt"
 )
 
 func UpdateProject(w http.ResponseWriter, r *http.Request) {
@@ -18,8 +17,6 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	defer r.Body.Close()
-
-	fmt.Println(namespace);
 
 	var response *Response = new(Response);
 	if (namespace.Username == "" ){
