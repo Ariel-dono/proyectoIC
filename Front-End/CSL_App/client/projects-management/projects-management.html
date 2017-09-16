@@ -1,29 +1,50 @@
 <template name="projects_management">
     <div id="modalCreate" class="modal overMap">
         <div class="modal-content">
-            <h5>My projects</h5>
-            <ul class="collapsible" data-collapsible="expandable">
+            <div class="col s12">
+                <label class="col s3 titleProject component-space">My projects</label>
+                {{#if namespace.username}}
+                    <button id='showAddNewProject' class="btn-floating green waves-effect waves-light"><i class="material-icons">add</i></button>
+                {{/if}}
+            </div>
+            <ul class="collapsible" data-collapsible="accordion">
                 {{#each namespace.projects}}
                     <li>   
                         <div class="collapsible-header waves-effect waves-teal" data-value="{{@index}}">
-                            {{.}}
+                            {{name}}
                         </div>
-                        <div class="collapsible-body">
-                            <p>Lorem ipsum dolor sit amet.</p>
+                        <div class="collapsible-body  right-align">
+                            <button class="edit element-rounded grey darken-3 waves-effect waves-teal btn"><i class="material-icons left">edit</i>Edit</button>
+                            <button class="remove element-rounded grey darken-3 waves-effect waves-teal btn"><i class="material-icons left">delete_forever</i>Remove</button>
                         </div>
                     </li>
                 {{/each}}
             </ul>
-            <h5>Add new project</h5>
-            <div class="component-space input-field col s12 input-login">
-                <i class="material-icons prefix">queue</i>
-                <input id="projectNameField" type="text" value="{{password}}" class="validate">
-                <label for="lock_open">Project name</label>
-                <a id="saveModal" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Create</a>
+            {{#if addComponentVisible}}
+                <h5>Add new project</h5>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">queue</i>
+                    <input id="projectNameField" type="text" value="{{projectName}}" class="validate">
+                    <label for="lock_open">Project name</label>
+                </div>
+                <div class="component-space input-field col s12  right-align">
+                    <button id="saveModal" class="element-rounded green darken-3 waves-effect waves-light btn"><i class="material-icons left">create_new_folder</i>Create</button>
+                </div>
+            {{/if}}
+            {{#if editComponentVisible}}
+                <h5>Edit project</h5>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">queue</i>
+                    <input id="projectNameField" type="text" value="{{projectName}}" class="validate">
+                    <label for="lock_open">Project name</label>
+                </div>
+                <div class="component-space input-field col s12  right-align">
+                    <button id="editModal" class="element-rounded green darken-3 waves-effect waves-light btn"><i class="material-icons left">edit</i>Edit</button>
+                </div>
+            {{/if}}
+            <div class="component-space input-field col s12  right-align">
+                <button id="closeModal" class="element-rounded grey darken-3 waves-effect waves-light btn"><i class="material-icons left">highlight_off</i>Close</button>
             </div>
-        </div>
-        <div class="modal-footer">
-            <a id="closeModal" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
         </div>
     </div>
 </template>

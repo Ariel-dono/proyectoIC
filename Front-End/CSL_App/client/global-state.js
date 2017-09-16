@@ -1,3 +1,4 @@
-export class GlobalState {
+export class GlobalAppState {
     namespacing = {}
+    project = {}
 };

@@ -1,6 +1,8 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+)
 
 type Route struct {
 	Name        string
@@ -22,7 +24,12 @@ type State struct {
 
 type Namespace struct {
 	Username	 string	 `json:"username"`
-	ProjectNames	[]string `json:"projects"`
+	ProjectNames	[]Project `json:"projects"`
+}
+
+type Project struct{
+	Id 		 string	 `json:"id"`
+	Name		 string  `json:"name"`
 }
 
 type NamespaceRequest struct {
