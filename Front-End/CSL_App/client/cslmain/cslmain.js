@@ -225,6 +225,7 @@ Template.CSL.events({
         event.preventDefault();
         setDataOnLayer(draw.getAll());
         GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
+        console.log(GlobalAppState.project.project_instance.layers)
         console.log(GlobalAppState.project)
         Meteor.call("saveProject", GlobalAppState.project,
             (error, result) => {

@@ -66,7 +66,7 @@ Template.projects_management.events({
                 (error, result) => {
                     console.log(result)
                     if(result.code > 0){
-                        Meteor.call("getProject", {key:GlobalAppState.namespacing.projects[instance.selectedItem.get()].id},
+                        Meteor.call("getProject", {key:GlobalAppState.project.key},
                             (error, result) => {
                                 console.log(result)
                                 if(result !== undefined){
