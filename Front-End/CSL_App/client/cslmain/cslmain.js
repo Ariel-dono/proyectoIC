@@ -233,7 +233,7 @@ Template.CSL.events({
                 if(result.code > 0){
                     Meteor.call("getProject", {key:GlobalAppState.project.key},
                         (error, result) => {
-                            console.log(result)
+                            //console.log(result)
                             if(result !== undefined){                     
                                 notify("Proyecto guardado", 3000, 'rounded')
                             }
@@ -283,6 +283,15 @@ Template.CSL.onRendered(
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
             });
+
+            map.on('click', 'cslplano', function (e) {
+                console.log(e);
+                new mapboxgl.Popup()
+                    .setLngLat(e.features[0].geometry.coordinates[0][0])
+                    .setHTML("<h1>Here is a ne element</h1>")
+                    .addTo(map);
+            });
+
             var labelLayerId = labelLayerIdx !== -1 ? layers[labelLayerIdx].id : undefined;
             map.addLayer({
                 'id': '3d-buildings',
