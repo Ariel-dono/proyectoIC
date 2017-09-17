@@ -238,6 +238,10 @@ Template.projects_management.events({
         instance.editComponentVisible.set(false)
         if(instance.addComponentVisible.get() === false)
             instance.addComponentVisible.set(true)
+    },
+    'click .load': function(event, instance){
+        GlobalAppState.projectSelectedEvent.set(true)
+        notify("Proyecto en edición", 3000, 'rounded')
     }
 })
 
