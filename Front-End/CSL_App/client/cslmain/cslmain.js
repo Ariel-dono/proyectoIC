@@ -1,13 +1,14 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
-import {notify} from '../toast/toast';
-import {GlobalState} from '../global-state';
 
 import * as mapboxgl from 'mapbox-gl';
 import  MapboxDraw  from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
 
 import {rxjs} from 'rxjs';
+
+import {notify} from '../toast/toast';
+import { GlobalAppState } from '../global-state';
 
 let map;
 let draw = new MapboxDraw();
@@ -127,7 +128,6 @@ function setDataOnLayer(pData)
 //-------------------------------------
 Template.CSL.onCreated(function homeOnCreated() {
     this.flagControl = new ReactiveVar(1);
-    this.projectName = new ReactiveVar('');
 });
 
 Template.CSL.helpers({
@@ -138,38 +138,28 @@ Template.CSL.helpers({
         return Template.instance().namespace.get();
     },
     projectName(){
-        return Template.instance().namespace.get();
+        return Template.instance().projectName.get();
     }
 });
 
 Template.CSL.events({
-    'click #cslnewproy'(event, instance) {
+    'click #cslmanproy'(event, instance) {
         event.preventDefault();
-        instance.$('#modal1').css("display", "block");
-      },
-    'click #cslabrirproy'(event, instance) {
-        event.preventDefault();
-        console.log(GlobalState.namespacing)
-        instance.$('#modal1').css("display", "block");
-      },
-    'click #cslsaveproy'(event, instance) {
-        event.preventDefault();
-        instance.$('#modal1').css("display", "block");
-      },
-    'click #closeModal'(event, instance) {
-        event.preventDefault();
-        instance.$('#modal1').css("display", "none");
-        if(GlobalState.namespacing.projects === null)
-            GlobalState.namespacing.projects=[]
-        Meteor.call("updateProjects",{
-            "username": GlobalState.namespacing.username,
-            "projects": GlobalState.namespacing.projects.push(Template.instance().namespace.get())
-          },
-          (error, result) => {
-            console.log(result)
-          }
-        )
-      },
+        instance.$('#modalCreate').css("display", "block");
+        GlobalAppState.project = {
+            key:"",
+            project_instance:{
+                layers:[],
+                name:"",
+                zoom:0,
+                reference:{
+                    x:-1,
+                    y:-1
+                }
+            }
+        }
+        console.log(GlobalAppState.project)
+    },
     'click #closecsl'(event, instance) {
         event.preventDefault();
         Router.go('/login');
@@ -229,6 +219,7 @@ Template.CSL.events({
 
 Template.CSL.onRendered(
     function() {
+        $('.button-collapse').sideNav('show')
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
         map = new mapboxgl.Map({
             center: [-84.10563996507328,  9.979042286713366],

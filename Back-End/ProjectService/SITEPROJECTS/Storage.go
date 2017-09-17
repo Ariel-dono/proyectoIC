@@ -17,12 +17,12 @@ func initialize() gocb.Bucket {
 func getNamespace(key string, namespace *Namespace, response *Response){
 	bucket := initialize()
 	_,err := bucket.Get(key, &namespace)
-	if err != nil {
+	if err != nil || namespace.Username == ""{
 		response.Code = -1;
-		response.State.Message = "Proyecto no existe";
+		response.State.Message = "Namespace no existe";
 	}else{
 		response.Code = 1;
-		response.State.Message = "Proyecto Eliminado";
+		response.State.Message = "Namespace Eliminado";
 	}
 }
 

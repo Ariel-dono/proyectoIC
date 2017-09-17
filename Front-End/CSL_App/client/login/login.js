@@ -2,7 +2,7 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar, Session } from 'meteor/reactive-var';
 import {Meteor} from 'meteor/meteor';
 import {notify} from '../toast/toast';
-import {GlobalState} from '../global-state';
+import {GlobalAppState} from '../global-state';
 
 import './login.html';
 
@@ -52,7 +52,7 @@ Template.login.events({
               (error, result) => {
                 if(result !== undefined){
                   Router.go('/CSL')
-                  GlobalState.namespacing = result;
+                  GlobalAppState.namespacing = result;
                   notify("Welcome " + result.username + "!!", 3000, 'rounded')
                 }
                 else{

@@ -1,3 +1,4 @@
-export class GlobalState {
-    namespace = {}
+export class GlobalAppState {
+    namespacing = {}
+    project = {}
 };
