@@ -1,5 +1,10 @@
 @import "{}/node_modules/materialize-css/sass/materialize.scss";
 
+.mapboxgl-popup {
+    max-width: 400px;
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+
 .background-csl-pane{
     background-color:#d3d3d3;
     border-radius: 2px;
