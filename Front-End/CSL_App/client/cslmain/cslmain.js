@@ -17,26 +17,33 @@ let controlLevelNumber=0;//set the functionality on the buttons on system
 let controlDrawingId=0;//set the properties on geojson
 let controlInputRadius=15;//set radius when it is on the id: cslgruas.
 
-let CONTROL_ID=0;
-let CONTROL_MESSAGE=1;
-let CONTROL_COLOR=2;
+let CONTROL_TYPE=0;
+let CONTROL_ID=1;
+let CONTROL_MESSAGE=2;
+let CONTROL_COLOR=3;
+let CONTROL_LAST_ID=4;
+
+let CONTROL_FILLTYPE=0;
+let CONTROL_LINETYPE=1;
+let CONTROL_CIRCLETYPE=2;
+
+let opacity=0.6;
 
 let CONTROL_LIST=[
-    ['cslplano','Establecer las area del plano','#FFFFFF'],
-    ['cslbloqueo','Establecer las areas bloqueadas','#F08080'],
-    ['cslacomet','Establecer las acometidas','#FFA500'],
-    ['cslmaq','Establecer los caminos de maquinaria','#8B4513'],
-    ['cslhuella','Establecer la huella de la construcción','#ffcc00'],
-    ['cslcivil','Establecer los caminos de civiles','#333'],
-    ['cslgruas','Establecer las gruas','#1E90FF'],
-    ['csllibres','Establecer las areas libres','#90EE90']
+    [CONTROL_FILLTYPE,'cslplano','Establecer las area del plano','#FFFFFF',''],
+    [CONTROL_FILLTYPE,'cslbloqueo','Establecer las areas bloqueadas','#F08080',''],
+    [CONTROL_LINETYPE,'cslacomet','Establecer las acometidas','#FFA500',''],
+    [CONTROL_FILLTYPE,'cslmaq','Establecer los caminos de maquinaria','#8B4513',''],
+    [CONTROL_FILLTYPE,'cslconstrucc','Establecer la huella de la construcción','#ffcc00',''],
+    [CONTROL_LINETYPE,'cslcivil','Establecer los caminos de civiles','#333',''],
+    [CONTROL_CIRCLETYPE,'cslgruas','Establecer las gruas','#1E90FF',''],
+    [CONTROL_FILLTYPE,'csllibres','Establecer las areas libres','#90EE90','']
 ];
 
 function showButtonOnMapLayer(pElement){
     list=['.mapbox-gl-draw_polygon','.mapbox-gl-draw_line','.mapbox-gl-draw_point'];
     for(x=0 ;x<list.length;x++)
     {
-        console.log(x);
         if(pElement==x) Template.instance().$(list[pElement]).css("display", 'block');
         else Template.instance().$(list[x]).css("display", 'none');
     }
@@ -47,63 +54,74 @@ function setControlDraw(pControlDrawId){
     showButtonOnMapLayer(pControlDrawId);
 }
 
-function setLayer(pName,pData,pColor,pType,pRadio){//funcion tiene un bug visual, repinta los objetos despues e reposicionarlos
-    try{
-        map.removeSource(pName);
-    }
-    catch(e){}
-    if(pType==0)
+function setNameLayer(pName,pType)
+{
+    layer={
+        "id": pName,
+        "type": pType,
+        "source": {
+            "type": "geojson"
+        }
+    };
+    return layer;
+}
+
+function createLayerElement(position) // position from CONTROL_LIST, the function generates a structures that is needed for create a mapbox-layer.
+{
+    newLayer={};
+    if(CONTROL_LIST[position][CONTROL_TYPE]==CONTROL_FILLTYPE)
     {
-        map.addLayer({
-            'id': pName,
-            'type': 'fill',
-            'source': {
-                'type': 'geojson',
-                'data': pData
-            },
-            'layout': {},
-            'paint': {
-                'fill-color': pColor,
-                'fill-opacity': 0.45
-            }
-        });
+        newLayer=setNameLayer(CONTROL_LIST[position][CONTROL_ID],'fill');
+        CONTROL_LIST[position][CONTROL_LAST_ID]=CONTROL_LIST[position][CONTROL_ID];
+        newLayer.paint=
+        {
+            'fill-color': CONTROL_LIST[position][CONTROL_COLOR],
+            'fill-opacity': opacity
+        };
     }
-    else if(pType==1){
-        map.addLayer({
-            "id": pName,
-            "type": "line",
-            "source": {
-                "type": "geojson",
-                "data": pData
-            },
-            "layout": {
-                "line-join": "round",
-                "line-cap": "round"
-            },
-            "paint": {
-                "line-color": pColor,
-                "line-width": 3.5
-            }
-        })
+    else if(CONTROL_LIST[position][CONTROL_TYPE]==CONTROL_LINETYPE)
+    {
+        newLayer=setNameLayer(CONTROL_LIST[position][CONTROL_ID],'line');
+        CONTROL_LIST[position][CONTROL_LAST_ID]=CONTROL_LIST[position][CONTROL_ID];
+        newLayer.paint=
+        {
+            "line-color": CONTROL_LIST[position][CONTROL_COLOR],
+            "line-width": 3.5
+        };
+        newLayer.layout=
+        {
+            "line-join": "round",
+            "line-cap": "round"
+        };
     }
-    else if(pType==2){
-        map.addLayer({
-            "id": pName,
-            "type": "circle",
-            "source": {
-                "type": "geojson",
-                "data": pData
+    else if(CONTROL_LIST[position][CONTROL_TYPE]==CONTROL_CIRCLETYPE)
+    {
+        newLayer=setNameLayer(CONTROL_LIST[position][CONTROL_ID],'circle');
+        CONTROL_LIST[position][CONTROL_LAST_ID]=CONTROL_LIST[position][CONTROL_ID];
+        newLayer.paint=
+        {
+            "circle-radius":  {
+                'base': 1.75,
+                'stops': [[12, 2], [23, 50]]
             },
-            "paint": {
-                "circle-radius":  {
-                    'base': 1.75,
-                    'stops': [[12, 2], [23, 50]]
-                },
-                "circle-color": "#B42222",
-                'circle-opacity': 0.2
-            }
-        })
+            "circle-color": CONTROL_LIST[position][CONTROL_COLOR],
+            'circle-opacity': opacity
+        };
     }
+    return newLayer;
+}
+
+function setDataOnLayer(pData)
+{
+    if(map.getLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
+    {
+        map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+        map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+    }
+    newLayer=createLayerElement(controlLevelNumber);
+    newLayer.source.data=pData;
+    map.addLayer(newLayer);
+
 }
 
 //-------------------------------------
@@ -166,8 +184,6 @@ Template.CSL.events({
         event.preventDefault();
             controlLevelNumber=1;
             setControlDraw(0);
-            controlDrawingId=0;
-            showButtonOnMapLayer(controlDrawingId);
         },
         'click #cslacomet'(event, instance) {
         event.preventDefault();
@@ -179,7 +195,7 @@ Template.CSL.events({
             controlLevelNumber=3;
             setControlDraw(0);
         },
-        'click #cslhuella'(event, instance) {
+        'click #cslconstrucc'(event, instance) {
         event.preventDefault();
             controlLevelNumber=4;
             setControlDraw(0);
@@ -204,13 +220,7 @@ Template.CSL.events({
         //Boton arriba derecha
         'click #cslsavestruct'(event, instance) {
         event.preventDefault();
-            //establece el layer con source y formato de dibujo, con el id especifico.
-            setLayer(
-                CONTROL_LIST[controlLevelNumber][CONTROL_ID],
-                draw.getAll(),
-                CONTROL_LIST[controlLevelNumber][CONTROL_COLOR],
-                controlDrawingId
-            );
+            setDataOnLayer(draw.getAll());
         },
         'change #projectNameField': function(event,instance) {
             instance.projectName.set(event.target.value);
@@ -239,9 +249,9 @@ Template.CSL.onRendered(
             }
         });
         
-        map.addControl(draw);
-        setControlDraw(0);
-
+        map.addControl(draw);//add controls on mapbox, set the draw tool
+        setControlDraw(0);//Set the button of the first level
+        
         map.on('load', function () {
             var layers = map.getStyle().layers.reverse();
             var labelLayerIdx = layers.findIndex(function (layer) {
