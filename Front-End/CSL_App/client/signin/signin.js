@@ -54,7 +54,7 @@ Template.signin.events({
             if(result !== undefined){
               if(result.code > 0){
                 notify("User: " + result.state.message, 3000, 'rounded')
-                Meteor.call("createNamespace",instance.username.get(),
+                Meteor.call("createNamespace",{username:instance.username.get()},
                   (error, result) => {
                     console.log(result)
                     if(result !== undefined){
