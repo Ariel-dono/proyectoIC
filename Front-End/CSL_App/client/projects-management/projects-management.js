@@ -2,6 +2,10 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { notify } from '../toast/toast';
 
+import * as mapboxgl from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import turf from '@turf/turf';
+
 import { GlobalAppState } from '../global-state';
 
 Template.projects_management.onCreated(function homeOnCreated() {
@@ -161,6 +165,8 @@ Template.projects_management.events({
     },
     'click .edit':function(event,instance){
         instance.projectName.set(GlobalAppState.namespacing.projects[instance.selectedItem.get()].name)
+
+        
         instance.addComponentVisible.set(false)
         if(instance.editComponentVisible.get() === false)
             instance.editComponentVisible.set(true)
@@ -242,6 +248,16 @@ Template.projects_management.events({
     'click .load': function(event, instance){
         GlobalAppState.projectSelectedEvent.set(true)
         notify("Proyecto en edición", 3000, 'rounded')
+        Meteor.call("projectGet", {key: GlobalAppState.project.key},
+        (error, result) => {
+            console.log("Cargando elemento:")
+            console.log(result.project_instance.layers[0])
+            console.log(result.project_instance.layers[0].stages)
+            
+        }
+    )
+
+
     }
 })
 

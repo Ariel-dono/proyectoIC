@@ -10,8 +10,8 @@ import { rxjs } from 'rxjs';
 import { notify } from '../toast/toast';
 import { GlobalAppState } from '../global-state';
 
-let map;
-let draw = new MapboxDraw();
+GlobalAppState.map;
+GlobalAppState.draw = new MapboxDraw();
 
 //Buttons Left Panel Control: ----------
 let controlLevelNumber = 0;//set the functionality on the buttons on system
@@ -108,14 +108,13 @@ function createLayerElement(position) // position from CONTROL_LIST, the functio
 }
 
 function setDataOnLayer(pData) {
-    if (map.getLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]) != undefined) {
-        map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
-        map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+    if (GlobalAppState.map.getLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]) != undefined) {
+        GlobalAppState.map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+        GlobalAppState.map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
     }
     newLayer = createLayerElement(controlLevelNumber);
     newLayer.source.data = pData;
-    map.addLayer(newLayer);
-
+    GlobalAppState.map.addLayer(newLayer);
 }
 
 function parsingMapJSON() {
@@ -124,12 +123,13 @@ function parsingMapJSON() {
     currResult={};
     
     for (counter = 0; counter < CONTROL_LIST.length; counter++) {
-        currSource= map.getSource(CONTROL_LIST[counter][CONTROL_ID]);
+        currSource= GlobalAppState.map.getSource(CONTROL_LIST[counter][CONTROL_ID]);
         //console.log(currSource);
         if(currSource!=undefined)
         {
             //console.log(currSource);
-            for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
+            for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++)
+            {   //viaja atraves de los layers en source
                 currResult.nature=counter;
                 currResult.description="";
                 currResult.variables=[];
@@ -146,11 +146,22 @@ function parsingMapJSON() {
                 currResult={};
             }
         }
-
-        
     }
-    console.log(jsonInfo);
+    //console.log(jsonInfo);
     return jsonInfo;
+}
+
+function parsingJsonMap(parJson){
+
+}
+
+function initAllLevels(){
+    for(counter=0;counter<CONTROL_LIST.length;counter++){
+        setDataOnLayer({
+            type:"FeatureCollection",
+            features: []
+        });
+    }
 }
 
 //-------------------------------------
@@ -168,8 +179,6 @@ Template.CSL.events({
     'click #cslmanproy'(event, instance) {
         event.preventDefault();
         instance.$('#modalCreate').css("display", "block");
-        console.log(GlobalAppState.project)
-        console.log(instance.flagControl.get())
     },
     'click #closecsl'(event, instance) {
         event.preventDefault();
@@ -223,13 +232,13 @@ Template.CSL.events({
     //Boton arriba derecha
     'click #cslsavestruct'(event, instance) {
         event.preventDefault();
-        setDataOnLayer(draw.getAll());
+        setDataOnLayer(GlobalAppState.draw.getAll());
         GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
-        console.log(GlobalAppState.project.project_instance.layers)
-        console.log(GlobalAppState.project)
+        //console.log(GlobalAppState.project.project_instance.layers)
+        //console.log(GlobalAppState.project)
         Meteor.call("saveProject", GlobalAppState.project,
             (error, result) => {
-                console.log(result)
+                //console.log(result)
                 if(result.code > 0){
                     Meteor.call("getProject", {key:GlobalAppState.project.key},
                         (error, result) => {
@@ -242,10 +251,10 @@ Template.CSL.events({
                             }
                         }
                     )
-                    notify("Project: " + result.state.message, 3000, 'rounded')
+                    //notify("Project: " + result.state.message, 3000, 'rounded')
                 }
                 else{
-                    notify("Project: " + result.state.message, 3000, 'rounded')        
+                    //notify("Project: " + result.state.message, 3000, 'rounded')        
                 }
             }
         )
@@ -256,7 +265,7 @@ Template.CSL.onRendered(
     function () {
         $('.button-collapse').sideNav('show')
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
-        map = new mapboxgl.Map({
+        GlobalAppState.map = new mapboxgl.Map({
             center: [-84.10563996507328, 9.979042286713366],
             zoom: 5,
             container: 'map',
@@ -265,7 +274,7 @@ Template.CSL.onRendered(
             hash: true
         });
 
-        draw = new MapboxDraw({
+        GlobalAppState.draw = new MapboxDraw({
             displayControlsDefault: false,
             controls: {
                 line_string: true,
@@ -275,25 +284,39 @@ Template.CSL.onRendered(
             }
         });
 
-        map.addControl(draw);//add controls on mapbox, set the draw tool
+        GlobalAppState.map.addControl(GlobalAppState.draw);//add controls on mapbox, set the draw tool
         setControlDraw(0);//Set the button of the first level
 
-        map.on('load', function () {
-            var layers = map.getStyle().layers.reverse();
+        GlobalAppState.map.on('load', function () {
+        initAllLevels(); //initialize all the layers on the map.
+
+            var layers = GlobalAppState.map.getStyle().layers.reverse();
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
             });
-
+            /*
             map.on('click', 'cslplano', function (e) {
-                console.log(e);
+                polygon = turf.polygon(e.features[0].geometry.coordinates);
+                center = turf.centerOfMass(polygon);
+                //console.log("CENTER:"+center.geometry.coordinates);
+
                 new mapboxgl.Popup()
-                    .setLngLat(e.features[0].geometry.coordinates[0][0])
-                    .setHTML("<h1>Here is a ne element</h1>")
+                    .setLngLat(center.geometry.coordinates)
+                    .setHTML("<h4>Here is a ne element</h4>")
                     .addTo(map);
             });
 
+            map.on('mouseenter', 'cslplano', function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+        
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', 'cslplano', function () {
+                map.getCanvas().style.cursor = '';
+            });
+            */
             var labelLayerId = labelLayerIdx !== -1 ? layers[labelLayerIdx].id : undefined;
-            map.addLayer({
+            GlobalAppState.map.addLayer({
                 'id': '3d-buildings',
                 'source': 'composite',
                 'source-layer': 'building',
