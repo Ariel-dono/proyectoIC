@@ -20,10 +20,10 @@ if (Meteor.isServer) {
             return HTTP.call("POST", state.path + state.users + signin, { data:signinRequest }).data;
         },
         createNamespace: function(username){
-            return HTTP.call("POST", state.path + state.namespace + createNamespace, { data:{username:username,projects:[]} }).data;
+            return HTTP.call("POST", state.path + state.namespace + createNamespace, { data:username,projects:[]}).data;
         },
         getNamespace:function(username){
-            return HTTP.call("POST", state.path + state.namespace + getNamespace, { data:{username:username} }).data;
+            return HTTP.call("POST", state.path + state.namespace + getNamespace, { data:username }).data;
         },
         updateProjects:function(namespace){
             return HTTP.call("POST", state.path + state.namespace + addProject, { data:namespace }).data;
