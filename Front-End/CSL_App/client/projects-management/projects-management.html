@@ -4,13 +4,13 @@
             <div class="col s12">
                 <label class="col s3 titleProject component-space">My projects</label>
                 {{#if namespace.username}}
-                    <button id='showAddNewProject' class="btn-floating green waves-effect waves-light"><i class="material-icons">add</i></button>
+                    <button id='showAddNewProject' class="btn-floating light-green waves-effect waves-light"><i class="material-icons">add</i></button>
                 {{/if}}
             </div>
             <ul class="collapsible" data-collapsible="accordion">
                 {{#each namespace.projects}}
                     <li>   
-                        <div class="collapsible-header waves-effect waves-teal" data-value="{{@index}}">
+                        <div class="collapsible-header waves-effect waves-green" data-value="{{@index}}">
                             {{name}}
                         </div>
                         <div class="collapsible-body  right-align">

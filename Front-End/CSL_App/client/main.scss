@@ -6,14 +6,51 @@
 }
 
 .background-csl-pane{
-    background-color:#d3d3d3;
-    border-radius: 2px;
+    background-color:#1E1D27 !important;
+    color: #d3d3d3;
 }
+
+.mapboxgl-ctrl-group{
+    @extend .col;
+    @extend .m1;
+    @extend .offset-m11;
+    @extend .z-depth-2;
+    @extend .overMap;
+    @extend .csl-right-pane;
+    background-color:#302F3C !important;
+    color: #d3d3d3;
+    margin: 0 0 0 0 !important;
+    border-radius: 0 0 0 0px !important;
+}
+
+.mapboxgl-ctrl-group > button {
+    @extend .waves-effect;
+    @extend .waves-green;
+    width: 100% !important;
+    height: 55px !important;
+    border: none !important;
+}
+
+.positioning-absolute-rounded{
+    margin-top: -4px !important;
+}
+
+.absolute-left-rounded{
+    @extend .positioning-absolute-rounded;
+    border-radius: 8px 0 0 8px; 
+}
+
+.absolute-right-rounded{
+    @extend .positioning-absolute-rounded;
+    border-radius: 0 8px 8px 0; 
+}
+
 .addElementButton
 {
-    left:85%;
+    left:90%;
     top:2%;
 }
+
 nav{
     z-index: 10002;
     position: fixed;
@@ -27,6 +64,7 @@ nav{
 
 .modal{
     opacity: 0.975;
+    background-color: #302F3C;
 }
 
 .overMap{
@@ -41,8 +79,9 @@ nav{
     max-width: 12em;
     height: 100%;
     top:0px;
-    opacity: 0.95;
+    opacity: 0.9;
 }
+
 .csl-bottom-pane{
     display: block;
     margin-left: auto;
@@ -51,12 +90,13 @@ nav{
 
 .csl-right-pane{
     min-height: 100%;
-    min-width: 10%;
+    min-width: 5%;
     height: 100%;
-    left:90%;
+    left:95%;
     top :0%;
-    opacity: 0.95;
+    opacity: 0.9;
 }
+
 //pruebas para determinar areas y calculos
 
 .calculation-box {
@@ -157,6 +197,7 @@ p {
 .element-rounded{
     color: #d3d3d3;
     border-radius: 40px;
+    opacity: 0.9;
 }
 
 .pull-right{
@@ -168,7 +209,7 @@ p {
 }
 
 .title{
-    color: #000;
+    color: #d3d3d3;
 }
 
 .login-component{
@@ -176,7 +217,16 @@ p {
     position: relative;
     float: none;
     opacity: 0.9;
-    background-color: #f3f3f3;
+    background-color: #1E1D27;
+}
+
+.input-tag, .prefix, input:focus + label {
+    color: #d3d3d3 !important;
+}
+
+  /* label underline focus color */
+ .input-field input:focus {
+    box-shadow: 0 1px 0 0 #0d47a1 !important
 }
 
 .component-space{
@@ -198,20 +248,41 @@ p {
 }
 
 .input-login{
-    color: #000;
+    color: #d3d3d3;
+}
+
+.menu-element{
+    color: #d3d3d3 !important;
+}
+
+.collapsible{
+    border: none !important;
 }
 
 .collapsible-header{
     color: #d3d3d3 !important;
     background-color: #4E4F4E !important;
+    border: none !important;
+}
+
+.collapsible-body{
+    background-color: #b3b3b3  !important;
+    border: none !important;
 }
 
 .titleProject{
     font-size: 25px;
     font-weight: 4px;
-    color: #000;
+    color: #d3d3d3;
 }
 
 .without-translate{
     transform: none !important;
 }
+
+.waves-effect.waves-brown .waves-ripple {
+    /* The alpha value allows the text and background color
+    of the button to still show through. */
+     background-color: rgba(74, 67, 62, 0.65);
+}
+
