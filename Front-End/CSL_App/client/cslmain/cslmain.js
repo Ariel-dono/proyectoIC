@@ -120,9 +120,11 @@ function setDataOnLayer(pData) {
 
 function parsingMapJSON() {
     jsonInfo={};
-    jsonInfo.layers = [];
     currResult={};
-    
+    jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : [];
+    layer = {}
+    layer.stages = [];
+    layer.level = controlLevelNumber;
     for (counter = 0; counter < CONTROL_LIST.length; counter++) {
         currSource= map.getSource(CONTROL_LIST[counter][CONTROL_ID]);
         //console.log(currSource);
@@ -130,7 +132,6 @@ function parsingMapJSON() {
         {
             //console.log(currSource);
             for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
-                currResult.nature=counter;
                 currResult.description="";
                 currResult.variables=[];
                 currResult.vectors_sequence=[];
@@ -142,13 +143,12 @@ function parsingMapJSON() {
                         y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
                     });
                 }
-                jsonInfo.layers.push(currResult);
+                layer.stages.push(currResult);
                 currResult={};
             }
         }
-
-        
     }
+    jsonInfo.layers.push(layer)
     console.log(jsonInfo);
     return jsonInfo;
 }
@@ -233,8 +233,9 @@ Template.CSL.events({
                 if(result.code > 0){
                     Meteor.call("getProject", {key:GlobalAppState.project.key},
                         (error, result) => {
-                            //console.log(result)
-                            if(result !== undefined){                     
+                            console.log(result)
+                            if(result !== undefined){
+                                GlobalAppState.project.project_instance = result;                     
                                 notify("Proyecto guardado", 3000, 'rounded')
                             }
                             else{

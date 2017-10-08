@@ -43,7 +43,7 @@ Template.projects_management.events({
             Meteor.call("updateProjects", toUpdateNamespace,
                 (error, result) => {
                     console.log(result)
-                    Meteor.call("getNamespace",GlobalAppState.namespacing.username,
+                    Meteor.call("getNamespace",{username:GlobalAppState.namespacing.username},
                         (error, result) => {
                             console.log(result)
                             if(result !== undefined){
@@ -70,7 +70,6 @@ Template.projects_management.events({
                             (error, result) => {
                                 console.log(result)
                                 if(result !== undefined){
-                                    GlobalAppState.project.key = GlobalAppState.namespacing.projects[instance.selectedItem.get()].id;
                                     GlobalAppState.project.project_instance = result;                        
                                     notify("Proyecto creado: " + result.name + "!!", 3000, 'rounded')
                                 }
@@ -103,7 +102,7 @@ Template.projects_management.events({
             Meteor.call("updateProjects", toUpdateNamespace,
                 (error, result) => {
                     console.log(result)
-                    Meteor.call("getNamespace",GlobalAppState.namespacing.username,
+                    Meteor.call("getNamespace",{username: GlobalAppState.namespacing.username},
                         (error, result) => {
                             console.log(result)
                             if(result !== undefined){
@@ -176,7 +175,7 @@ Template.projects_management.events({
         Meteor.call("updateProjects", toUpdateNamespace,
             (error, result) => {
                 console.log(result)
-                Meteor.call("getNamespace",GlobalAppState.namespacing.username,
+                Meteor.call("getNamespace", {username: GlobalAppState.namespacing.username},
                     (error, result) => {
                         console.log(result)
                         if(result !== undefined){
