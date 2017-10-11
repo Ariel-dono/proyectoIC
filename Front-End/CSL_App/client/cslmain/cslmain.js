@@ -65,8 +65,7 @@ function setNameLayer(pName, pType) {
     return layer;
 }
 
-function createLayerElement(position) // position from CONTROL_LIST, the function generates a structures that is needed for create a mapbox-layer.
-{
+function createLayerElement(position) {// position from CONTROL_LIST, the function generates a structures that is needed for create a mapbox-layer.
     newLayer = {};
     if (CONTROL_LIST[position][CONTROL_TYPE] == CONTROL_FILLTYPE) {
         newLayer = setNameLayer(CONTROL_LIST[position][CONTROL_ID], 'fill');
@@ -107,14 +106,108 @@ function createLayerElement(position) // position from CONTROL_LIST, the functio
     return newLayer;
 }
 
+function temporal(data){
+    GlobalAppState.map.addLayer({
+        'id': 'maine',
+        'type': 'fill',
+        'source': {
+            'type': 'geojson',
+            'data': data
+        },
+        'layout': {},
+        'paint': {
+            'fill-color': '#088',
+            'fill-opacity': 0.8
+        }
+    });
+}
+
+function isContainedOnSite(pData,pControlLevelNumber){
+    console.log("contained");
+    var inputElement= turf.polygon(pData.features[0].geometry.coordinates);
+    console.log(inputElement);
+    var site=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[0][CONTROL_ID])._data.features[0].geometry.coordinates);
+    for(counter=0; counter < pData.features[0].geometry.coordinates[0].length; counter++){
+        var point = turf.point(pData.features[0].geometry.coordinates[0][counter]);
+        if(!turf.inside(point, site)){
+            return false;
+        }
+    }
+    
+    var difference = turf.difference(inputElement, site);
+    var difference2 = turf.difference(site, inputElement);
+
+    //console.log("1");
+    //console.log(difference);
+    
+    //console.log(GlobalAppState.map.getSource(CONTROL_LIST[0][CONTROL_ID])._data.features[0].geometry.coordinates);
+    return true;
+}
+function existCollision(pData,pControlLevelNumber){
+    console.log("exist");
+    //console.log(pData.features[0].geometry.coordinates);
+    //valide que se encuentre dentro del nivel 0
+    var poly1 = turf.polygon([[
+        [-82.574787, 35.594087],
+        [-82.574787, 35.615581],
+        [-82.545261, 35.615581],
+        [-82.545261, 35.594087],
+        [-82.574787, 35.594087]
+    ]], {"fill": "#0f0"});
+    var poly2 = turf.polygon([[
+        [-82.560024, 35.585153],
+        [-82.560024, 35.602602],
+        [-82.52964, 35.602602],
+        [-82.52964, 35.585153],
+        [-82.560024, 35.585153]
+    ]], {"fill": "#00f"});
+    var union = turf.union(poly1, poly2);
+
+    return false;
+}
+//Tema de diseno es necesario bloquear el area del sitio para que el resto de elementos se puedan establecer.
+function isValidatedLevel(pData, pControlLevelNumber){
+    if (pControlLevelNumber==0){//Si se encuentra en el area del sitio.
+        if(pData.features.length>0){//Haya al menos una figura de entrada.
+            return true;//A futuro si se desea modificar el area del sitio, se debera validar que esta area contiene a todos los demas.
+        }
+    }
+    else if (pControlLevelNumber<=6 && pControlLevelNumber>=1){
+        if(pData.features.length>0){//Haya al menos una figura de entrada.
+            //no existe niguna collision y se encuentra contenido en el nivel del sitio(nivel 0).
+            if(isContainedOnSite(pData,pControlLevelNumber)){
+                //valida si no hay alguna colision
+                if(!existCollision(pData,pControlLevelNumber)){
+                    return true;
+                }
+                else{
+                    notify("Existe una collision con otro elemento", 3000, 'rounded')
+                }
+            }
+            else{
+                notify("Elemento debe estar contenido en el area del sitio", 3000, 'rounded')
+            }
+        }   
+    }
+    else {
+        //el area 8 es igual al nivel [0] menos la interseccion de los niveles [1,6]
+        //hace un llamado al mapa para pintar el area libre del mapa.
+        
+    }
+    return false;
+}
+
 function setDataOnLayer(pData) {
     if (GlobalAppState.map.getLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]) != undefined) {
         GlobalAppState.map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
         GlobalAppState.map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
     }
-    newLayer = createLayerElement(controlLevelNumber);
-    newLayer.source.data = pData;
-    GlobalAppState.map.addLayer(newLayer);
+    if (isValidatedLevel(pData,controlLevelNumber)){
+        newLayer = createLayerElement(controlLevelNumber);
+        newLayer.source.data = pData;
+        GlobalAppState.map.addLayer(newLayer);
+    }
+        
 }
 
 function parsingMapJSON() {
@@ -151,9 +244,6 @@ function parsingMapJSON() {
     return jsonInfo;
 }
 
-function parsingJsonMap(parJson){
-
-}
 
 function initAllLevels(){
     for(counter=0;counter<CONTROL_LIST.length;counter++){
@@ -236,7 +326,7 @@ Template.CSL.events({
         GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
         //console.log(GlobalAppState.project.project_instance.layers)
         //console.log(GlobalAppState.project)
-        Meteor.call("saveProject", GlobalAppState.project,
+        /*Meteor.call("saveProject", GlobalAppState.project,
             (error, result) => {
                 //console.log(result)
                 if(result.code > 0){
@@ -257,7 +347,7 @@ Template.CSL.events({
                     //notify("Project: " + result.state.message, 3000, 'rounded')        
                 }
             }
-        )
+        )*/
     }
 })
 
