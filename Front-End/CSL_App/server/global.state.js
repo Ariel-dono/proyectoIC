@@ -1,5 +1,5 @@
 export const state = {
-    path:'http://18.220.53.24:',
+    path:'http://18.221.192.31:',
     users: "10125/",
     namespace: "10126/",
     projects: "10127/"
