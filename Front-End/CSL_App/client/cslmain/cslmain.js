@@ -217,7 +217,7 @@ function parsingMapJSON() {
     layer = {}
     layer.stages = [];
     layer.level = controlLevelNumber;
-    for (counter = 0; counter < CONTROL_LIST.length; counter++) {
+    for (counter = 0; counter < CONTROL_LIST.length; counter++) {//
         currSource= GlobalAppState.map.getSource(CONTROL_LIST[counter][CONTROL_ID]);
         //console.log(currSource);
         if(currSource!=undefined)
@@ -241,7 +241,7 @@ function parsingMapJSON() {
         }
     }
     jsonInfo.layers.push(layer)
-    console.log(jsonInfo);
+    //console.log(jsonInfo);
     return jsonInfo;
 }
 
@@ -253,6 +253,51 @@ function initAllLevels(){
             features: []
         });
     }
+}
+
+export function loadProject(pProject){
+    console.log("Traido de la BD:"+pProject);
+    levelList=new Array();
+    //inicializar una lista de collections
+    console.log("F1:"+CONTROL_LIST.length);
+    for(counter=0;counter<CONTROL_LIST.length;counter++){
+        levelList.push({
+            type:"FeatureCollection",
+            features:[]
+        });
+    }
+    //por cada poligono
+
+    console.log("------ENTRADA------------");
+    console.log(pProject);
+    console.log("---------------------------");
+    
+    console.log("Cantidad LAYERS:"+pProject.project_instance.layers.length);
+    for(var counter=0;counter<pProject.project_instance.layers.length;counter++){
+        console.log("Cantidad stages por layer:"+pProject.project_instance.layers[counter].stages.length);
+        for(var counter2=0;counter2<pProject.project_instance.layers[counter].stages.length;counter2++){
+            var feature=new Object();
+            feature.properties=new Object();
+            feature.type="Feature";
+            feature.id="c"+counter+"cc"+counter2+"level"+pProject.project_instance.layers[counter].level;
+            var geometry=new Object();
+            geometry.type="Polygon";
+            geometry.coordinates=new Array();
+            //nivel de description y variables
+            geometry.coordinates.push([]);
+            geometry.coordinates[0].push([]);
+            for(var counter3=0;counter3<pProject.project_instance.layers[counter].stages[counter2].vectors_sequence.length;counter3++){
+                x=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].x;
+                y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
+                geometry.coordinates[0][0].push([x,y]);
+            }
+            feature.geometry=geometry;
+            levelList[pProject.project_instance.layers[counter].level].features.push(feature);
+        }
+    }
+    console.log("------RESULTADO------------");
+    console.log(levelList);
+    console.log("---------------------------");
 }
 
 //-------------------------------------
@@ -323,11 +368,14 @@ Template.CSL.events({
     //Boton arriba derecha
     'click #cslsavestruct'(event, instance) {
         event.preventDefault();
+        console.log("Estructura Orig:");
+        console.log(GlobalAppState.draw.getAll());
+        console.log("=======================");
         setDataOnLayer(GlobalAppState.draw.getAll());
         GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
         //console.log(GlobalAppState.project.project_instance.layers)
         //console.log(GlobalAppState.project)
-        /*Meteor.call("saveProject", GlobalAppState.project,
+        Meteor.call("saveProject", GlobalAppState.project,
             (error, result) => {
                 //console.log(result)
                 if(result.code > 0){
@@ -349,7 +397,7 @@ Template.CSL.events({
                     //notify("Project: " + result.state.message, 3000, 'rounded')        
                 }
             }
-        )*/
+        )
     }
 })
 
