@@ -2,7 +2,12 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { notify } from '../toast/toast';
 
+import * as mapboxgl from 'mapbox-gl';
+import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import turf from '@turf/turf';
+
 import { GlobalAppState } from '../global-state';
+import {loadProject} from '../cslmain/cslmain';
 
 Template.projects_management.onCreated(function homeOnCreated() {
     this.projectName = new ReactiveVar('')
@@ -160,6 +165,8 @@ Template.projects_management.events({
     },
     'click .edit':function(event,instance){
         instance.projectName.set(GlobalAppState.namespacing.projects[instance.selectedItem.get()].name)
+
+        
         instance.addComponentVisible.set(false)
         if(instance.editComponentVisible.get() === false)
             instance.editComponentVisible.set(true)
@@ -222,7 +229,7 @@ Template.projects_management.events({
                     if(result !== undefined){
                         GlobalAppState.project.key = GlobalAppState.namespacing.projects[instance.selectedItem.get()].id;
                         GlobalAppState.project.project_instance = result;
-                        console.log(GlobalAppState.project)                        
+                        //console.log(GlobalAppState.project)                        
                     }
                     else{
                         notify("Error creando el proyecto", 3000, 'rounded')        
@@ -241,6 +248,21 @@ Template.projects_management.events({
     'click .load': function(event, instance){
         GlobalAppState.projectSelectedEvent.set(true)
         notify("Proyecto en edición", 3000, 'rounded')
+        Meteor.call("getProject", {key: GlobalAppState.project.key},
+        (error, result) => {
+            if(result !== undefined){
+                GlobalAppState.project.key = GlobalAppState.namespacing.projects[instance.selectedItem.get()].id;
+                GlobalAppState.project.project_instance = result;
+                loadProject(GlobalAppState.project);            
+            }
+            else{
+                notify("Error creando el proyecto", 3000, 'rounded')        
+            }
+            
+        }
+    )
+
+
     }
 })
 
