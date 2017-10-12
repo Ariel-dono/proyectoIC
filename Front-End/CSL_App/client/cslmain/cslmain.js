@@ -259,7 +259,7 @@ export function loadProject(pProject){
     console.log("Traido de la BD:"+pProject);
     levelList=new Array();
     //inicializar una lista de collections
-    console.log("F1:"+CONTROL_LIST.length);
+    //console.log("F1:"+CONTROL_LIST.length);
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         levelList.push({
             type:"FeatureCollection",
@@ -298,6 +298,11 @@ export function loadProject(pProject){
     console.log("------RESULTADO------------");
     console.log(levelList);
     console.log("---------------------------");
+    //Pintar los niveles
+    for(counter=0;counter<CONTROL_LIST.length;counter++){
+        controlLevelNumber=counter;
+        setDataOnLayer(levelList[counter]);
+    }
 }
 
 //-------------------------------------
