@@ -23,7 +23,7 @@ Template.login.helpers({
   accessToken(){
     return Template.instance().accessToken.get();
   },
-  username(){
+  username(){ 
     return Template.instance().username.get();
   },
   password(){

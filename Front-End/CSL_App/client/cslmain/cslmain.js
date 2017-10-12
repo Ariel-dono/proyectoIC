@@ -148,7 +148,10 @@ function parsingMapJSON() {
             }
         }
     }
-    jsonInfo.layers.push(layer)
+    if (jsonInfo.layers[layer.level])
+        jsonInfo.layers[layer.level] = layer
+    else
+        jsonInfo.layers.push(layer)
     console.log(jsonInfo);
     return jsonInfo;
 }
