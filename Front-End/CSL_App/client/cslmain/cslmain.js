@@ -29,16 +29,16 @@ let CONTROL_LINETYPE = 1;
 let CONTROL_CIRCLETYPE = 2;
 
 let opacity = 0.6;
-
+//agregar al arreglo
 let CONTROL_LIST = [
     [CONTROL_FILLTYPE, 'cslplano', 'Establecer las area del plano', '#FFFFFF', ''],
     [CONTROL_FILLTYPE, 'cslbloqueo', 'Establecer las areas bloqueadas', '#F08080', ''],
     [CONTROL_LINETYPE, 'cslacomet', 'Establecer las acometidas', '#FFA500', ''],
     [CONTROL_FILLTYPE, 'cslmaq', 'Establecer los caminos de maquinaria', '#8B4513', ''],
-    [CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', ''],
+    [CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', ''],
     [CONTROL_LINETYPE, 'cslcivil', 'Establecer los caminos de civiles', '#333', ''],
     [CONTROL_CIRCLETYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
-    [CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', '']
+    [CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', '']
 ];
 
 function showButtonOnMapLayer(pElement) {
@@ -167,7 +167,7 @@ function existCollision(pData,pControlLevelNumber){
 }
 //Tema de diseno es necesario bloquear el area del sitio para que el resto de elementos se puedan establecer.
 function isValidatedLevel(pData, pControlLevelNumber){
-    if (pControlLevelNumber==0){//Si se encuentra en el area del sitio.
+    /*if (pControlLevelNumber==0){//Si se encuentra en el area del sitio.
         if(pData.features.length>0){//Haya al menos una figura de entrada.
             return true;//A futuro si se desea modificar el area del sitio, se debera validar que esta area contiene a todos los demas.
         }
@@ -193,8 +193,8 @@ function isValidatedLevel(pData, pControlLevelNumber){
         //el area 8 es igual al nivel [0] menos la interseccion de los niveles [1,6]
         //hace un llamado al mapa para pintar el area libre del mapa.
         
-    }
-    return false;
+    }*/
+    return true;
 }
 
 function setDataOnLayer(pData) {
@@ -212,38 +212,33 @@ function setDataOnLayer(pData) {
 
 function parsingMapJSON() {
     jsonInfo={};
-    currResult={};
-    jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : [];
+    jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : []
     layer = {}
-    layer.stages = [];
-    layer.level = controlLevelNumber;
-    for (counter = 0; counter < CONTROL_LIST.length; counter++) {//
-        currSource= GlobalAppState.map.getSource(CONTROL_LIST[counter][CONTROL_ID]);
-        //console.log(currSource);
-        if(currSource!=undefined)
-        {
-            //console.log(currSource);
-            for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
-                currResult.description="";
-                currResult.variables=[];
-                currResult.vectors_sequence=[];
-                for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
-                {
-                    //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
-                    currResult.vectors_sequence.push({
-                        x: currSource._data.features[counter2].geometry.coordinates[0][counter3][0],
-                        y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
-                    });
-                }
-                layer.stages.push(currResult);
-                currResult={};
+    layer.level=controlLevelNumber
+    currSource= GlobalAppState.map.getSource(CONTROL_LIST[layer.level][CONTROL_ID]);
+    if(currSource!=undefined)
+    {
+        layer.stages=[]
+        for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
+            currResult={}
+            currResult.description=""
+            currResult.variables=[]
+            currResult.vectors_sequence=[]
+            for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
+            {
+                //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
+                currResult.vectors_sequence.push({
+                    x: currSource._data.features[counter2].geometry.coordinates[0][counter3][0],
+                    y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
+                })
             }
+            layer.stages.push(currResult)
         }
+        if (jsonInfo.layers[layer.level])
+            jsonInfo.layers[layer.level] = layer
+        else
+            jsonInfo.layers.push(layer)
     }
-    if (jsonInfo.layers[layer.level])
-        jsonInfo.layers[layer.level] = layer
-    else
-        jsonInfo.layers.push(layer)
     console.log(jsonInfo);
     return jsonInfo;
 }
@@ -288,11 +283,10 @@ export function loadProject(pProject){
             geometry.coordinates=new Array();
             //nivel de description y variables
             geometry.coordinates.push([]);
-            geometry.coordinates[0].push([]);
             for(var counter3=0;counter3<pProject.project_instance.layers[counter].stages[counter2].vectors_sequence.length;counter3++){
                 x=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].x;
                 y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
-                geometry.coordinates[0][0].push([x,y]);
+                geometry.coordinates[0].push([x,y]);
             }
             feature.geometry=geometry;
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
@@ -304,7 +298,10 @@ export function loadProject(pProject){
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
-        setDataOnLayer(levelList[counter]);
+        if(levelList[counter].features.length>0){
+            setDataOnLayer(levelList[counter]);
+            console.log(levelList[counter])
+        }
     }
 }
 
@@ -353,7 +350,7 @@ Template.CSL.events({
     },
     'click #cslconstrucc'(event, instance) {
         event.preventDefault();
-        controlLevelNumber = 4;
+        controlLevelNumber = 7;
         setControlDraw(0);
     },
     'click #cslcivil'(event, instance) {
@@ -370,7 +367,7 @@ Template.CSL.events({
     'click #csllibres'(event, instance) {
         event.preventDefault();
         //Aqui hay que establecer las diferencias entre los poligonos para que queden los sectores libres.
-        controlLevelNumber = 7;
+        controlLevelNumber = 4;
         setControlDraw(0);
     },
     //Boton arriba derecha
