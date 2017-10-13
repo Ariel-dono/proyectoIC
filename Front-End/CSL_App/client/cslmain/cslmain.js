@@ -439,18 +439,19 @@ Template.CSL.onRendered(
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
             });
-            /*
-            map.on('click', 'cslplano', function (e) {
+            for()
+            GlobalAppState.map.on('dblclick', 'cslplano', function (e) {
                 polygon = turf.polygon(e.features[0].geometry.coordinates);
                 center = turf.centerOfMass(polygon);
+                var area = turf.area(polygon);
                 //console.log("CENTER:"+center.geometry.coordinates);
-
-                new mapboxgl.Popup()
+                notify("Area: "+area+" m2", 3000, 'rounded')
+                /*new mapboxgl.Popup()
                     .setLngLat(center.geometry.coordinates)
                     .setHTML("<h4>Here is a ne element</h4>")
-                    .addTo(map);
+                    .addTo(map);*/
             });
-
+            /*
             map.on('mouseenter', 'cslplano', function () {
                 map.getCanvas().style.cursor = 'pointer';
             });
