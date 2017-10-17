@@ -2,11 +2,11 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import * as mapboxgl from 'mapbox-gl';
+import * as MapboxGeocoder from 'mapbox-gl-geocoder';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
 
 import { rxjs } from 'rxjs';
-
 import { notify } from '../toast/toast';
 import { GlobalAppState } from '../global-state';
 
@@ -29,6 +29,7 @@ let CONTROL_LINETYPE = 1;
 let CONTROL_CIRCLETYPE = 2;
 
 let opacity = 0.6;
+
 //agregar al arreglo
 let CONTROL_LIST = [
     [CONTROL_FILLTYPE, 'cslplano', 'Establecer las area del plano', '#FFFFFF', ''],
@@ -39,7 +40,7 @@ let CONTROL_LIST = [
     [CONTROL_LINETYPE, 'cslcivil', 'Establecer los caminos de civiles', '#333', ''],
     [CONTROL_CIRCLETYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
     [CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', '']
-];
+]
 
 function showButtonOnMapLayer(pElement) {
     list = ['.mapbox-gl-draw_polygon', '.mapbox-gl-draw_line', '.mapbox-gl-draw_point'];
@@ -121,53 +122,85 @@ function temporal(data){
         }
     });
 }
-
-function isContainedOnSite(pData,pControlLevelNumber){
-    console.log("contained");
-    var inputElement= turf.polygon(pData.features[0].geometry.coordinates);
-    console.log(inputElement);
-    var site=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[0][CONTROL_ID])._data.features[0].geometry.coordinates);
-    for(counter=0; counter < pData.features[0].geometry.coordinates[0].length; counter++){
-        var point = turf.point(pData.features[0].geometry.coordinates[0][counter]);
-        if(!turf.inside(point, site)){
-            return false;
+//por ahora no se esta usando esta funcion.
+function areStagesContainedOnSite(pData,pSite){
+    //console.log("no estan contenidas");
+    for(counterStage=0; counterStage< pData.features.length; counterStage++){
+        //console.log("countterStage: "+counterStage);
+        for(counter=0; counter < pData.features[counterStage].geometry.coordinates[0].length; counter++){
+            //console.log("InnerCounter: "+counter);
+            var point = turf.point(pData.features[counterStage].geometry.coordinates[0][counter]);
+            if(!turf.inside(point, pSite)){
+                return false;
+            }
         }
     }
-    
-    var difference = turf.difference(inputElement, site);
-    var difference2 = turf.difference(site, inputElement);
-
-    //console.log("1");
-    //console.log(difference);
-    
-    //console.log(GlobalAppState.map.getSource(CONTROL_LIST[0][CONTROL_ID])._data.features[0].geometry.coordinates);
     return true;
 }
-function existCollision(pData,pControlLevelNumber){
-    console.log("exist");
-    //console.log(pData.features[0].geometry.coordinates);
-    //valide que se encuentre dentro del nivel 0
-    var poly1 = turf.polygon([[
-        [-82.574787, 35.594087],
-        [-82.574787, 35.615581],
-        [-82.545261, 35.615581],
-        [-82.545261, 35.594087],
-        [-82.574787, 35.594087]
-    ]], {"fill": "#0f0"});
-    var poly2 = turf.polygon([[
-        [-82.560024, 35.585153],
-        [-82.560024, 35.602602],
-        [-82.52964, 35.602602],
-        [-82.52964, 35.585153],
-        [-82.560024, 35.585153]
-    ]], {"fill": "#00f"});
-    var union = turf.union(poly1, poly2);
 
+function isContainedOnSite(pData,pControlLevelNumber,pLevelNumber){
+    var site=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[pLevelNumber][CONTROL_ID])._data.features[0].geometry.coordinates);
+    for(counter=0;counter<pData.features.length;counter++){
+        var inputElement= turf.polygon(pData.features[counter].geometry.coordinates);
+        var difference = turf.difference(inputElement, site);//opuesto me da el area restante de inputElement
+        if(difference!=undefined)
+            return false;
+    }
+    return true;
+}
+
+function featureEqualFeature(firstPolygon,secondPolygon){
+    if(firstPolygon.geometry.coordinates[0].length == secondPolygon.geometry.coordinates[0].length)
+    {
+        for(counter=0; counter < firstPolygon.geometry.coordinates[0].length;counter++){
+            x1=firstPolygon.geometry.coordinates[0][counter][0];
+            y1=firstPolygon.geometry.coordinates[0][counter][1];
+            isWithin=false;
+            for(counter2=0;counter2<secondPolygon.geometry.coordinates[0].length;counter2++){
+                x2=secondPolygon.geometry.coordinates[0][counter2][0];
+                y2=secondPolygon.geometry.coordinates[0][counter2][1];
+                isWithin = (isWithin || (x1==x2 && y1==y2));
+            }
+            if(!isWithin) 
+                return false;
+        }
+        return true;
+    }
     return false;
+}
+
+function colissionOn2Poly(pFirst,pSecond){
+    var difference = turf.difference(pFirst, pSecond);//opuesto me da el area restante de inputElement
+    if(!featureEqualFeature(pFirst,difference)){//Tienen interseccion dif vacio: false / Tienen interseccion igual vacio: true
+        return true;
+    }
+    return false;
+}
+
+function existCollision(pData,pControlLevelNumber){
+    retorno=false;
+    console.log("length stages: "+pData.features.length)
+    var counter;
+    var counter2;
+    for(counter=0; counter < pData.features.length;counter++){
+        //validar que no choque con los stages traidos.
+        var inputElement= turf.polygon(pData.features[counter].geometry.coordinates);
+        for(counter2=counter+1; counter2 < pData.features.length;counter2++){
+            if(counter==counter2) {continue;} 
+            var auxiliar=turf.polygon(pData.features[counter2].geometry.coordinates);
+            if(colissionOn2Poly(inputElement,auxiliar)){
+                retorno=(retorno || true)
+            }
+        }
+        //validar que no choque con algun stage de algun nivel.
+    }
+    
+    console.log("WTF3 "+counter )
+    return retorno;
 }
 //Tema de diseno es necesario bloquear el area del sitio para que el resto de elementos se puedan establecer.
 function isValidatedLevel(pData, pControlLevelNumber){
-    /*if (pControlLevelNumber==0){//Si se encuentra en el area del sitio.
+    if (pControlLevelNumber==0){//Si se encuentra en el area del sitio.
         if(pData.features.length>0){//Haya al menos una figura de entrada.
             return true;//A futuro si se desea modificar el area del sitio, se debera validar que esta area contiene a todos los demas.
         }
@@ -175,7 +208,8 @@ function isValidatedLevel(pData, pControlLevelNumber){
     else if (pControlLevelNumber<=6 && pControlLevelNumber>=1){
         if(pData.features.length>0){//Haya al menos una figura de entrada.
             //no existe niguna collision y se encuentra contenido en el nivel del sitio(nivel 0).
-            if(isContainedOnSite(pData,pControlLevelNumber)){
+            console.log("et2")
+            if(isContainedOnSite(pData,pControlLevelNumber,0)){
                 //valida si no hay alguna colision
                 if(!existCollision(pData,pControlLevelNumber)){
                     return true;
@@ -192,22 +226,39 @@ function isValidatedLevel(pData, pControlLevelNumber){
     else {
         //el area 8 es igual al nivel [0] menos la interseccion de los niveles [1,6]
         //hace un llamado al mapa para pintar el area libre del mapa.
-        
-    }*/
-    return true;
+    }
+    return false;
+}
+
+function layerExists(pControlNumb){
+    if(GlobalAppState.map.getLayer(CONTROL_LIST[pControlNumb][CONTROL_ID]) != undefined)
+        return true;
+    return false;
+}
+
+function deleteLayer(pControlNumb){
+    GlobalAppState.map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+    GlobalAppState.map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+}
+
+function createLayer(pControlNumb,pData){
+    newLayer = createLayerElement(controlLevelNumber);
+    newLayer.source.data = pData;
+    GlobalAppState.map.addLayer(newLayer);
 }
 
 function setDataOnLayer(pData) {
-    if (GlobalAppState.map.getLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]) != undefined) {
-        GlobalAppState.map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
-        GlobalAppState.map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+    if (layerExists(controlLevelNumber)){
+        if (isValidatedLevel(pData,controlLevelNumber)){
+            deleteLayer(controlLevelNumber);
+            createLayer(controlLevelNumber,pData);
+        }
     }
-    if (isValidatedLevel(pData,controlLevelNumber)){
-        newLayer = createLayerElement(controlLevelNumber);
-        newLayer.source.data = pData;
-        GlobalAppState.map.addLayer(newLayer);
+    else{
+        if (isValidatedLevel(pData,controlLevelNumber)){
+            createLayer(controlLevelNumber,pData);
+        }
     }
-        
 }
 
 function parsingMapJSON() {
@@ -239,7 +290,8 @@ function parsingMapJSON() {
         else
             jsonInfo.layers.push(layer)
     }
-    console.log(jsonInfo);
+
+    console.log("Resultado de parseo:" +jsonInfo);
     return jsonInfo;
 }
 
@@ -377,9 +429,9 @@ Template.CSL.events({
         console.log(GlobalAppState.draw.getAll());
         console.log("=======================");
         setDataOnLayer(GlobalAppState.draw.getAll());
+        
+        /*
         GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
-        //console.log(GlobalAppState.project.project_instance.layers)
-        //console.log(GlobalAppState.project)
         Meteor.call("saveProject", GlobalAppState.project,
             (error, result) => {
                 //console.log(result)
@@ -402,7 +454,7 @@ Template.CSL.events({
                     //notify("Project: " + result.state.message, 3000, 'rounded')        
                 }
             }
-        )
+        )*/
     }
 })
 
@@ -432,6 +484,21 @@ Template.CSL.onRendered(
         GlobalAppState.map.addControl(GlobalAppState.draw);//add controls on mapbox, set the draw tool
         setControlDraw(0);//Set the button of the first level
 
+        console.log("Sistema de geolocalizador 1")
+        MapboxGeocoder.query('Montreal Quebec');
+        
+        
+        console.log("Sistema de geolocalizador 2 ")
+        MapboxGeocoder.on('results', function(e) {
+            console.log('results: ', e.features);
+        });
+        
+        geocoder.on('error', function(e) {
+            console.log('Error is', e.error);
+        });
+
+        GlobalAppState.map.addControl(new MapboxGeocoder({accessToken: mapboxgl.accessToken}));
+
         GlobalAppState.map.on('load', function () {
         initAllLevels(); //initialize all the layers on the map.
 
@@ -439,7 +506,7 @@ Template.CSL.onRendered(
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
             });
-            for()
+            
             GlobalAppState.map.on('dblclick', 'cslplano', function (e) {
                 polygon = turf.polygon(e.features[0].geometry.coordinates);
                 center = turf.centerOfMass(polygon);
@@ -451,15 +518,14 @@ Template.CSL.onRendered(
                     .setHTML("<h4>Here is a ne element</h4>")
                     .addTo(map);*/
             });
-            /*
-            map.on('mouseenter', 'cslplano', function () {
-                map.getCanvas().style.cursor = 'pointer';
-            });
-        
-            // Change it back to a pointer when it leaves.
-            map.on('mouseleave', 'cslplano', function () {
-                map.getCanvas().style.cursor = '';
-            });
+            /*      map.on('mouseenter', 'cslplano', function () {
+                    map.getCanvas().style.cursor = 'pointer';
+                });
+            
+                // Change it back to a pointer when it leaves.
+                map.on('mouseleave', 'cslplano', function () {
+                    map.getCanvas().style.cursor = '';
+                });
             */
             var labelLayerId = labelLayerIdx !== -1 ? layers[labelLayerIdx].id : undefined;
             GlobalAppState.map.addLayer({
