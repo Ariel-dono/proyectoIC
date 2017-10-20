@@ -1,5 +1,7 @@
 @import "{}/node_modules/materialize-css/sass/materialize.scss";
 
+
+
 .mapboxgl-popup {
     max-width: 200px;
     font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
@@ -75,8 +77,8 @@ nav{
 //Estructura paneles.
 .csl-left-pane{
     min-height: 100%;
-    min-width: 4em;
-    max-width: 12em;
+    min-width: 6em;
+    max-width: 16em;
     height: 100%;
     top:0px;
     opacity: 0.9;
@@ -291,3 +293,48 @@ p {
     max-height: 400px;
 }
 
+
+.selectedLevel {
+    font: 'Helvetica Neue';
+    text-align: center;
+    margin: 20px 0 20px 0;
+    text-decoration: none !important;
+    -webkit-transition: all 0.5s !important;
+    -moz-transition: all 0.5s !important;
+    transition: all 0.5s !important;
+    font-size: 1.6em !important;
+    font-weight: bold !important;
+    color: #ccff90 !important;
+}
+
+.selectedLevelActive {
+-webkit-animation: luzN 1.5s ease-in-out infinite alternate !important;
+-moz-animation: luzN 1.5s ease-in-out infinite alternate !important;
+animation: luzN 1.5s ease-in-out infinite alternate !important;
+}
+
+@-webkit-keyframes luzN {
+    from {
+        text-shadow: 0 0 2px #fff, 0 0 7px #fff, 0 0 10px #b2ff59, 0 0 17px #b2ff59, 0 0 20px #b2ff59, 0 0 25px #b2ff59, 0 0 37px #b2ff59;
+    }
+    to {
+        text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px #b2ff59, 0 0 8px #b2ff59, 0 0 10px #b2ff59, 0 0 12px #b2ff59, 0 0 17px #b2ff59;
+    }
+}
+@-moz-keyframes luzN {
+    from {
+        text-shadow: 0 0 2px #fff, 0 0 7px #fff, 0 0 10px #b2ff59, 0 0 17px #b2ff59, 0 0 20px #b2ff59, 0 0 25px #b2ff59, 0 0 37px #b2ff59;
+    }
+    to {
+        text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px #b2ff59, 0 0 8px #b2ff59, 0 0 10px #b2ff59, 0 0 12px #b2ff59, 0 0 17px #b2ff59;
+    }
+}
+
+@keyframes luzN {
+    from {
+        text-shadow: 0 0 2px #fff, 0 0 7px #fff, 0 0 10px #b2ff59, 0 0 17px #b2ff59, 0 0 20px #b2ff59, 0 0 25px #b2ff59, 0 0 37px #b2ff59;
+    }
+    to {
+        text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px #b2ff59, 0 0 8px #b2ff59, 0 0 10px #b2ff59, 0 0 12px #b2ff59, 0 0 17px #b2ff59;
+    }
+}
