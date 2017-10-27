@@ -30,24 +30,33 @@ let CONTROL_CIRCLETYPE = 2;
 
 let opacity = 0.6;
 
-let CONTROL_SITE_POSITION=0;
-
 //agregar al arreglo
 let CONTROL_LIST = [
-    [CONTROL_FILLTYPE, 'cslplano', 'Establecer las area del plano', '#FFFFFF', ''],
-    [CONTROL_FILLTYPE, 'cslbloqueo', 'Establecer las areas bloqueadas', '#F08080', ''],
-    [CONTROL_LINETYPE, 'cslacomet', 'Establecer las acometidas', '#FFA500', ''],
-    [CONTROL_FILLTYPE, 'cslmaq', 'Establecer los caminos de maquinaria', '#8B4513', ''],
-    [CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', ''],
-    [CONTROL_LINETYPE, 'cslcivil', 'Establecer los caminos de civiles', '#333', ''],
-    [CONTROL_CIRCLETYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
-    [CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', '']
+/*0  F */[CONTROL_FILLTYPE, 'cslplano', 'Establecer las area del plano', '#FFFFFF', ''],
+/*1  F */[CONTROL_FILLTYPE, 'cslbloqueo', 'Establecer las areas bloqueadas', '#F08080', ''],
+/*2  F */[CONTROL_LINETYPE, 'cslacomet', 'Establecer las acometidas', '#FFA500', ''],
+/*3  F */[CONTROL_FILLTYPE, 'cslmaq', 'Establecer los caminos de maquinaria', '#8B4513', ''],
+/*4  F */[CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', ''],
+/*5  F */[CONTROL_FILLTYPE, 'csltemp', 'Establecer la construccion temporal', '#42a5f5', ''],
+/*6  L */[CONTROL_LINETYPE, 'cslcivil', 'Establecer los caminos de civiles', '#333', ''],
+/*7  C */[CONTROL_CIRCLETYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
+/*8  F */[CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', '']
 ]
 
+function setLevelController()
+{
+    controlLevelNumber++;
+}
+
+function getControlLevelById(pId){
+    result=-1
+    for(counter=0;counter<CONTROL_LIST;counter++){
+        if(CONTROL_LIST[counter][CONTROL_ID]==pId) return counter;
+    }
+    return result;
+}
 
 //=================================================Estructura de geojason=========================================================
-
-
 function setNameLayer(pName, pType) {
     layer = {
         "id": pName,
@@ -61,6 +70,7 @@ function setNameLayer(pName, pType) {
 
 function createLayerElement(position) {// position from CONTROL_LIST, the function generates a structures that is needed for create a mapbox-layer.
     newLayer = {};
+    console.log("Posicion: "+ position);
     if (CONTROL_LIST[position][CONTROL_TYPE] == CONTROL_FILLTYPE) {
         newLayer = setNameLayer(CONTROL_LIST[position][CONTROL_ID], 'fill');
         CONTROL_LIST[position][CONTROL_LAST_ID] = CONTROL_LIST[position][CONTROL_ID];
@@ -183,21 +193,22 @@ function existCollision(pData,pControlLevelNumber){
         //validar que no choque con algun stage de algun nivel
         for(counterLayer=1;counterLayer<CONTROL_LIST.length;counterLayer++){
             //filtrar los unicos
-            if(controlLevelNumber!=counterLayer){
-                if(counterLayer == 3 || counterLayer == 1 || counterLayer == 7){
-                    if(GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])!=undefined){
-                        for(counterStage=0;counterStage<GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])._data.features.length;counterStage++){
-                            var auxiliar=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])._data.features[counterStage].geometry.coordinates)
-                            if(colissionOn2Poly(inputElement,auxiliar)){
-                                retorno=(retorno || true)
-                            }
-                        }
+            if(
+                controlLevelNumber!=counterLayer &&
+                CONTROL_FILLTYPE==CONTROL_LIST[counterLayer][CONTROL_TYPE] &&
+                GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])!=undefined &&
+                counterLayer!=4
+                
+            ){
+                for(counterStage=0;counterStage<GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])._data.features.length;counterStage++){
+                    var auxiliar=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])._data.features[counterStage].geometry.coordinates)
+                    if(colissionOn2Poly(inputElement,auxiliar)){
+                        retorno=(retorno || true)
                     }
                 }
             }
         }
     }
-    //console.log("WTF3 "+counter )
     return retorno;
 }
 
@@ -206,11 +217,7 @@ function typeLineOnSite(pData,pControlLevelSitePosition){
     var site=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[pControlLevelSitePosition][CONTROL_ID])._data.features[0].geometry.coordinates);    
     result=true;
     for(counterStage=0; counterStage< pData.features.length; counterStage++){
-        console.log("dat:")
-        console.log(pData.features[counterStage].geometry.coordinates.length);
         for(counter=0; counter < pData.features[counterStage].geometry.coordinates.length; counter++){
-            console.log("InnerCounter: "+counter);
-            console.log(pData.features[counterStage].geometry.coordinates[counter]);
             var point = turf.point(pData.features[counterStage].geometry.coordinates[counter]);
             if(!turf.inside(point, site)){
                 result=false;
@@ -227,11 +234,14 @@ function isValidatedLevel(pData, pControlLevelNumber){
             return true;//A futuro si se desea modificar el area del sitio, se debera validar que esta area contiene a todos los demas.
         }
     }
-    else if (pControlLevelNumber<=CONTROL_LIST.length && pControlLevelNumber>=1){
+    else if(pControlLevelNumber==6){// 
+        return true;
+    }
+    else if (pControlLevelNumber<=CONTROL_LIST.length && pControlLevelNumber>0){
         if(pData.features.length>0){//Haya al menos una figura de entrada.
             if(CONTROL_FILLTYPE==CONTROL_LIST[pControlLevelNumber][CONTROL_TYPE]){
                 //no existe niguna collision y se encuentra contenido en el nivel del sitio(nivel 0).
-                if(isContainedOnSite(pData,pControlLevelNumber,CONTROL_SITE_POSITION)){
+                if(isContainedOnSite(pData,pControlLevelNumber,0)){
                         //valida si no hay alguna colision
                         if(!existCollision(pData,pControlLevelNumber)){
                             return true;
@@ -246,15 +256,12 @@ function isValidatedLevel(pData, pControlLevelNumber){
             }
             else if(CONTROL_LINETYPE==CONTROL_LIST[pControlLevelNumber][CONTROL_TYPE])
             {
-                if(typeLineOnSite(pData,CONTROL_SITE_POSITION)){
+                if(typeLineOnSite(pData,0)){
                     return true;
                 }
                 else{
                     notify("Elemento debe estar contenido en el area del sitio", 3000, 'rounded')
                 }
-            }
-            else{
-                return true;
             }
         }   
     }
@@ -265,9 +272,25 @@ function isValidatedLevel(pData, pControlLevelNumber){
     return false;
 }
 
+function setFreeArea(){
+    var result=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[0][CONTROL_ID])._data.features[0].geometry.coordinates);    
+    var currentArea=null;
+    for(counterLayer=1;counterLayer<CONTROL_LIST.length;counterLayer++){
+        if(
+            CONTROL_FILLTYPE==CONTROL_LIST[counterLayer][CONTROL_TYPE] &&
+            GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])!=undefined
+        ){
+            for(counterStage=0;counterStage<GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])._data.features.length;counterStage++){
+                currentArea=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[counterLayer][CONTROL_ID])._data.features[counterStage].geometry.coordinates)
+                result=turf.difference(result,currentArea);
+            }
+        }
+    }
+    //console.log(result);
+    return result;
+}
 
 //======================Control de layers en Map========================================================================
-
 function layerExists(pControlNumb){
     if(GlobalAppState.map.getLayer(CONTROL_LIST[pControlNumb][CONTROL_ID]) != undefined)
         return true;
@@ -285,23 +308,26 @@ function createLayer(pControlNumb,pData){
     GlobalAppState.map.addLayer(newLayer);
 }
 
-function setDataOnLayer(pData) {
+function setDataOnLayer(pData){
+    console.log('pData:')
+    console.log(pData)
+    //console.log(pData)
     if (layerExists(controlLevelNumber)){
         if (isValidatedLevel(pData,controlLevelNumber)){
             deleteLayer(controlLevelNumber);
             createLayer(controlLevelNumber,pData);
+            setLevelController();
         }
     }
     else{
         if (isValidatedLevel(pData,controlLevelNumber)){
             createLayer(controlLevelNumber,pData);
+            setLevelController();
         }
     }
 }
 
-
 //======================Parser GEOJSON========================================================================
-
 
 function parsingMapJSON() {
     jsonInfo={};
@@ -332,11 +358,8 @@ function parsingMapJSON() {
         else
             jsonInfo.layers.push(layer)
     }
-
-    //console.log("Resultado de parseo:" +jsonInfo);
     return jsonInfo;
 }
-
 
 export function loadProject(pProject){
     //console.log("Traido de la BD:"+pProject);
@@ -349,15 +372,8 @@ export function loadProject(pProject){
             features:[]
         });
     }
-    //por cada poligono
-    /*
-    console.log("------ENTRADA------------");
-    console.log(pProject);
-    console.log("---------------------------");
-    */
-    //console.log("Cantidad LAYERS:"+pProject.project_instance.layers.length);
+    
     for(var counter=0;counter<pProject.project_instance.layers.length;counter++){
-        //console.log("Cantidad stages por layer:"+pProject.project_instance.layers[counter].stages.length);
         for(var counter2=0;counter2<pProject.project_instance.layers[counter].stages.length;counter2++){
             var feature=new Object();
             feature.properties=new Object();
@@ -366,7 +382,6 @@ export function loadProject(pProject){
             var geometry=new Object();
             geometry.type="Polygon";
             geometry.coordinates=new Array();
-            //nivel de description y variables
             geometry.coordinates.push([]);
             for(var counter3=0;counter3<pProject.project_instance.layers[counter].stages[counter2].vectors_sequence.length;counter3++){
                 x=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].x;
@@ -377,46 +392,23 @@ export function loadProject(pProject){
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
-    /*console.log("------RESULTADO------------");
-    console.log(levelList);
-    console.log("---------------------------");*/
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
         if(levelList[counter].features.length>0){
             setDataOnLayer(levelList[counter]);
-            //console.log(levelList[counter])
         }
     }
 }
 
-
 //======================Sistema de control========================================================================
 
-
-function setLevelController()
-{
-    if(controlLevelNumber==7){
-        controlLevelNumber = 5;
-    }
-    else if(controlLevelNumber == 3){
-        controlLevelNumber = 7;
-    }
-    else if(controlLevelNumber ==6){
-        console.log("Ya termino de settear")
-    }
-    else{
-        controlLevelNumber++;
-    }
-    
-}
 
 function updateUIControlLevel(pControlLevel){
     for (counter = 0; counter < CONTROL_LIST.length; counter++) {
         if (pControlLevel == counter) Template.instance().$('#'+CONTROL_LIST[counter][CONTROL_ID]).addClass('selectedLevelActive');
         else Template.instance().$('#'+CONTROL_LIST[counter][CONTROL_ID]).removeClass('selectedLevelActive');
     }
-    //$('#cslplano').removeClass('selectedLevelActive');
 }
 
 function showButtonOnMapLayer(pElement){
@@ -432,9 +424,7 @@ function setControlDraw(pControlDrawId){
     showButtonOnMapLayer(pControlDrawId);
 }
 
-
 //==============================Meteor========================================================================
-
 
 Template.CSL.onCreated(function homeOnCreated() {
     this.flagControl = new ReactiveVar(false); 
@@ -447,7 +437,6 @@ Template.CSL.helpers({
 });
 
 //Crear funcion de control generica que funcione para los eventos
-
 Template.CSL.events({
     'click #cslmanproy'(event, instance) {
         event.preventDefault();
@@ -494,7 +483,15 @@ Template.CSL.events({
     },
     'click #cslconstrucc'(event, instance) {
         event.preventDefault();
-        controlLevelNumber = 7;
+        controlLevelNumber = 4;
+        setControlDraw(0);
+        if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
+        ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
+        updateUIControlLevel(controlLevelNumber);
+    },
+    'click #csltemp'(event, instance) {
+        event.preventDefault();
+        controlLevelNumber = 5;
         setControlDraw(0);
         if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
         ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
@@ -502,7 +499,7 @@ Template.CSL.events({
     },
     'click #cslcivil'(event, instance) {
         event.preventDefault();
-        controlLevelNumber = 5;
+        controlLevelNumber = 6;
         setControlDraw(1);
         if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
         ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
@@ -510,8 +507,8 @@ Template.CSL.events({
     },
     'click #cslgruas'(event, instance) {
         event.preventDefault();
-        controlLevelNumber = 6;
-        controlInputRadius = 20; // esto tiene que ser una entrada.
+        controlLevelNumber = 7;
+        controlInputRadius = 20; //esto tiene que ser una entrada.
         setControlDraw(2);
         if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
         ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
@@ -520,7 +517,7 @@ Template.CSL.events({
     'click #csllibres'(event, instance) {
         event.preventDefault();
         //Aqui hay que establecer las diferencias entre los poligonos para que queden los sectores libres.
-        controlLevelNumber = 4;
+        controlLevelNumber = 8;
         setControlDraw(0);
         if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
         ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
@@ -529,15 +526,9 @@ Template.CSL.events({
     //Boton arriba derecha
     'click #cslsavestruct'(event, instance) {
         event.preventDefault();
-        /*console.log("Estructura Orig:");
-        console.log(GlobalAppState.draw.getAll());
-        console.log("=======================");*/
         setDataOnLayer(GlobalAppState.draw.getAll());//establece los datos en el layer
-        console.log(controlLevelNumber)
-        setLevelController();//establece nuevo nivel
-        console.log(controlLevelNumber)
         updateUIControlLevel(controlLevelNumber);//Muestra en ui nivel actual
-        /*
+        GlobalAppState.draw.deleteAll();
         GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
         Meteor.call("saveProject", GlobalAppState.project,
             (error, result) => {
@@ -561,7 +552,7 @@ Template.CSL.events({
                     //notify("Project: " + result.state.message, 3000, 'rounded')        
                 }
             }
-        )*/
+        )
     }
 })
 
@@ -591,8 +582,7 @@ Template.CSL.onRendered(
                 trash: true
             }
         });
-       
-
+        
         GlobalAppState.map.addControl(GlobalAppState.draw);//add controls on mapbox, set the draw tool
         setControlDraw(0);//Set the button of the first level
 
