@@ -8,7 +8,7 @@
 }
 
 .background-csl-pane{
-    background-color:#1E1D27 !important;
+    background-color:#302F3C !important;
     color: #d3d3d3;
 }
 
@@ -282,10 +282,10 @@ p {
     transform: none !important;
 }
 
-.waves-effect.waves-brown .waves-ripple {
+.waves-effect.waves-blue .waves-ripple {
     /* The alpha value allows the text and background color
     of the button to still show through. */
-     background-color: rgba(74, 67, 62, 0.65);
+     background-color: rgba(0, 96, 128, 0.65);
 }
 
 .image-sizing-login{
@@ -293,18 +293,20 @@ p {
     max-height: 400px;
 }
 
+$baseLevelColor:#E1E1E1;
+$animationColorPrimary:#136b89;
+$animationColorSecondary:#fff;
 
 .selectedLevel {
     font: 'Helvetica Neue';
     text-align: center;
-    margin: 20px 0 20px 0;
     text-decoration: none !important;
     -webkit-transition: all 0.5s !important;
     -moz-transition: all 0.5s !important;
     transition: all 0.5s !important;
     font-size: 1.6em !important;
     font-weight: bold !important;
-    color: #ccff90 !important;
+    color: $baseLevelColor !important;
 }
 
 .selectedLevelActive {
@@ -315,26 +317,27 @@ animation: luzN 1.5s ease-in-out infinite alternate !important;
 
 @-webkit-keyframes luzN {
     from {
-        text-shadow: 0 0 2px #fff, 0 0 7px #fff, 0 0 10px #b2ff59, 0 0 17px #b2ff59, 0 0 20px #b2ff59, 0 0 25px #b2ff59, 0 0 37px #b2ff59;
+        text-shadow: 0 0 2px $animationColorSecondary, 0 0 7px $animationColorSecondary, 0 0 10px $animationColorPrimary, 0 0 17px $animationColorPrimary, 0 0 20px $animationColorPrimary, 0 0 25px $animationColorPrimary, 0 0 37px $animationColorPrimary;
     }
     to {
-        text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px #b2ff59, 0 0 8px #b2ff59, 0 0 10px #b2ff59, 0 0 12px #b2ff59, 0 0 17px #b2ff59;
+        text-shadow: 0 0 1px $animationColorSecondary, 0 0 3px $animationColorSecondary, 0 0 5px $animationColorPrimary, 0 0 8px $animationColorPrimary, 0 0 10px $animationColorPrimary, 0 0 12px $animationColorPrimary, 0 0 17px $animationColorPrimary;
     }
 }
+
 @-moz-keyframes luzN {
     from {
-        text-shadow: 0 0 2px #fff, 0 0 7px #fff, 0 0 10px #b2ff59, 0 0 17px #b2ff59, 0 0 20px #b2ff59, 0 0 25px #b2ff59, 0 0 37px #b2ff59;
+        text-shadow: 0 0 2px $animationColorSecondary, 0 0 7px $animationColorSecondary, 0 0 10px $animationColorPrimary, 0 0 17px $animationColorPrimary, 0 0 20px $animationColorPrimary, 0 0 25px $animationColorPrimary, 0 0 37px $animationColorPrimary;
     }
     to {
-        text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px #b2ff59, 0 0 8px #b2ff59, 0 0 10px #b2ff59, 0 0 12px #b2ff59, 0 0 17px #b2ff59;
+        text-shadow: 0 0 1px $animationColorSecondary, 0 0 3px $animationColorSecondary, 0 0 5px $animationColorPrimary, 0 0 8px $animationColorPrimary, 0 0 10px $animationColorPrimary, 0 0 12px $animationColorPrimary, 0 0 17px $animationColorPrimary;
     }
 }
 
 @keyframes luzN {
     from {
-        text-shadow: 0 0 2px #fff, 0 0 7px #fff, 0 0 10px #b2ff59, 0 0 17px #b2ff59, 0 0 20px #b2ff59, 0 0 25px #b2ff59, 0 0 37px #b2ff59;
+        text-shadow: 0 0 2px $animationColorSecondary, 0 0 7px $animationColorSecondary, 0 0 10px $animationColorPrimary, 0 0 17px $animationColorPrimary, 0 0 20px $animationColorPrimary, 0 0 25px $animationColorPrimary, 0 0 37px $animationColorPrimary;
     }
     to {
-        text-shadow: 0 0 1px #fff, 0 0 3px #fff, 0 0 5px #b2ff59, 0 0 8px #b2ff59, 0 0 10px #b2ff59, 0 0 12px #b2ff59, 0 0 17px #b2ff59;
+        text-shadow: 0 0 1px $animationColorSecondary, 0 0 3px $animationColorSecondary, 0 0 5px $animationColorPrimary, 0 0 8px $animationColorPrimary, 0 0 10px $animationColorPrimary, 0 0 12px $animationColorPrimary, 0 0 17px $animationColorPrimary;
     }
 }
