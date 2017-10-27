@@ -1,49 +1,36 @@
 <template name="CSL">
     <div id='map'></div>
-
-    <!--<pre id='info'></pre>
-        <div class='calculation-box'>
-            <p>Draw a polygon using the draw tools.</p>
-            <div id='calculate' class='button button'>Calculate area</div>
-            <div id='calculated-area'></div>
-
-            <div class= "col s1 overMap csl-left-pane background-csl-pane"></div>
-            <div class= "col s1 overMap csl-right-pane background-csl-pane"></div>
-
-             <a class="btn tooltipped" data-position="bottom" data-delay="50" data-tooltip="I am a tooltip">Hover me!</a>
-        
-        </div>-->
     <div class='row overMap'>
-        <ul  id="slide-out" class="side-nav background-csl-pane without-translate csl-left-pane">
+        <ul  id="tabs" class="side-nav background-csl-pane without-translate csl-left-pane">
             <li>
-                <a id='cslplano' class="waves-effect  waves-green menu-element">Plano del sitio</a>
+                <a id='cslplano' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Sitio</a>
             </li>
             <li>
-                <a id='cslbloqueo' class="waves-effect waves-green menu-element">Bloqueo</a>
+                <a id='cslbloqueo' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Bloqueo</a>
             </li>
             <li>
-                <a id='cslacomet' class="waves-effect waves-green menu-element">Acomet</a>
+                <a id='cslacomet' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Acometida</a>
             </li>
             <li>
-                <a id='cslmaq' class="waves-effect waves-green menu-element">C.Maquin</a>
+                <a id='cslmaq' class="waves-effect waves-blue darken-4 menu-element selectedLevel">C.Maquinas</a>
             </li>
             <li>
-                <a id='cslconstrucc' class="waves-effect waves-green menu-element">Huella C</a>
+                <a id='cslconstrucc' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Huella</a>
             </li>
             <li>
-                <a id='cslcivil' class="waves-effect waves-green menu-element">C.Civil</a>
+                <a id='csltemp' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Temporal</a>
             </li>
             <li>
-                <a id='cslgruas' class="waves-effect waves-green menu-element">Gruas</a>
+                <a id='cslcivil' class="waves-effect waves-blue darken-4 menu-element selectedLevel">C.Civil</a>
             </li>
             <li>
-                <a id='csllibres' class="waves-effect waves-green menu-element">Z.Libres</a>
+                <a id='cslgruas' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Gruas</a>
+            </li>
+            <li>
+                <a id='csllibres' class="waves-effect waves-blue darken-4 menu-element selectedLevel">Z.Libres</a>
             </li>
         </ul>
 
-        <!-- <div class='col m1 offset-m11 z-depth-2 overMap csl-right-pane background-csl-pane'>
-
-        </div> -->
     </div>
     <!--{{#if flagControl}}-->
         <a class="btn-floating btn-large waves-effect waves-light light-green accent-4 overMap addElementButton"><i id='cslsavestruct' class="material-icons">add</i></a>
