@@ -427,12 +427,17 @@ function setControlDraw(pControlDrawId){
 //==============================Meteor========================================================================
 
 Template.CSL.onCreated(function homeOnCreated() {
-    this.flagControl = new ReactiveVar(false); 
+    this.flagControl = new ReactiveVar(false)
+    this.selectedProject = new ReactiveVar(false)
+    GlobalAppState.templateContext.set("CSL", this)
 });
 
 Template.CSL.helpers({
     flagControl() {
-        return Template.instance().flagControl.get();
+        return Template.instance().flagControl.get()
+    },
+    selectedProject(){
+        return Template.instance().selectedProject.get()
     }
 });
 
@@ -440,7 +445,15 @@ Template.CSL.helpers({
 Template.CSL.events({
     'click #cslmanproy'(event, instance) {
         event.preventDefault();
-        instance.$('#modalCreate').css("display", "block");
+        GlobalAppState.templateContext.get('projects_management').namespace.set(GlobalAppState.namespacing)
+        instance.$('#modalMaterials').css("display", "none")
+        instance.$('#modalProjects').css("display", "block")
+    },
+    'click #cslmanmat'(event, instance) {
+        event.preventDefault();
+        GlobalAppState.templateContext.get('materials_management').matspace.set(GlobalAppState.materials)
+        instance.$('#modalProjects').css("display", "none")
+        instance.$('#modalMaterials').css("display", "block");
     },
     'click #closecsl'(event, instance) {
         event.preventDefault();
@@ -662,6 +675,20 @@ Template.CSL.onRendered(
                 }
             }
         }
+        GlobalAppState.materials = {
+            project_id: "",
+            materials: [],
+            active_materials:[]
+        }
         GlobalAppState.projectSelectedEvent = Template.instance().flagControl
+        if (GlobalAppState.username)
+            GlobalAppState.getRequest("getNamespace",  {username:GlobalAppState.username}, 
+            "Getting namespace",
+            (result) =>
+            {
+                if (result){
+                    GlobalAppState.namespacing=result
+                }
+            })
     }
 );
