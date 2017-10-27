@@ -10,6 +10,9 @@ const addProject = 'namespace/update/projects/'
 const projectSave = 'project/save/'
 const projectGet = 'project/get/'
 const projectDelete = 'project/delete/'
+const materialSupplySave = 'materialsspace/save/'
+const materialSupplyGet = 'materialsspace/get/'
+const materialSupplyDelete = 'materialsspace/delete/'
 
 if (Meteor.isServer) {
     Meteor.methods({
@@ -36,6 +39,15 @@ if (Meteor.isServer) {
         },
         deleteProject:function(project){
             return HTTP.call("POST",state.path + state.projects + projectDelete,{data: project}).data;
+        },
+        saveMaterials:function(materials){
+            return HTTP.call("POST",state.path + state.materials + materialSupplySave,{data: materials}).data;
+        },
+        getMaterials:function(materials){
+            return HTTP.call("POST",state.path + state.materials + materialSupplyGet,{data: materials}).data;
+        },
+        deleteMaterials:function(materials){
+            return HTTP.call("POST",state.path + state.materials + materialSupplyDelete,{data: materials}).data;
         }
     });
 }

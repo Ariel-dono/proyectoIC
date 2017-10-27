@@ -10,10 +10,11 @@ import * as mapboxgl from 'mapbox-gl';
 import * as rxjs from 'rxjs'; 
 
 Template.login.onCreated(function homeOnCreated() {
-  this.accessToken = new ReactiveVar("pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ");
-  this.mapStyle = new ReactiveVar("josalvarado/cj6nv3ue212172soj1nvlyaia");
-  this.username = new ReactiveVar("");
-  this.password = new ReactiveVar("");
+  this.accessToken = new ReactiveVar("pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ")
+  this.mapStyle = new ReactiveVar("josalvarado/cj6nv3ue212172soj1nvlyaia")
+  this.username = new ReactiveVar("")
+  this.password = new ReactiveVar("")
+  GlobalAppState.templateContext.set("login", this)
 });
 
 Template.login.helpers({
@@ -47,19 +48,9 @@ Template.login.events({
           console.log(result)
           if(result !== undefined){
             if(result.code > 0){
-              notify("User: " + result.state.message, 3000, 'rounded')
-              Meteor.call("getNamespace",{"username":instance.username.get()},
-              (error, result) => {
-                if(result !== undefined){
-                  Router.go('/CSL')
-                  GlobalAppState.namespacing = result;
-                  notify("Welcome " + result.username + "!!", 3000, 'rounded')
-                }
-                else{
-                  notify("Error: No tiene asociado un namespace", 3000, 'rounded')        
-                }
-              }
-            );
+              GlobalAppState.username = instance.username.get()
+              notify(`User ${GlobalAppState.username}: ${result.state.message}`, 3000, 'rounded')
+              Router.go('/CSL')
             }
             else{
               notify("Error iniciando: " + result.state.message, 3000, 'rounded')

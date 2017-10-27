@@ -18,7 +18,6 @@
     @extend .overMap;
     @extend .csl-right-pane;
     background-color:#302F3C !important;
-    color: #d3d3d3;
     margin: 0 0 0 0 !important;
     border-radius: 0 0 0 0px !important;
 }
@@ -29,10 +28,19 @@
     width: 100% !important;
     height: 55px !important;
     border: none !important;
+    color: #d3d3d3;
+}
+
+.mapbox-gl-draw_trash{
+    border: none !important;
 }
 
 .positioning-absolute-rounded{
-    margin-top: -4px !important;
+    margin-top: -3px !important;
+}
+
+.absolute-no-rounded{
+    @extend .positioning-absolute-rounded;
 }
 
 .absolute-left-rounded{
@@ -266,7 +274,7 @@ p {
 }
 
 .collapsible-body{
-    background-color: #b3b3b3  !important;
+    background-color: #d3d3d3  !important;
     border: none !important;
 }
 
