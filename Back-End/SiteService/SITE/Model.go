@@ -52,14 +52,13 @@ type Layer struct {
 //Nature types: 1. Dynamic Area, 2. Temporal Area, 3. Locked Area, 4.Machinery path 5. workers path
 type VectorSequence struct {
 	VectorsSequence []Point	 	`json:"vectors_sequence"`
-	Description	string 	 	`json:"description"`
 	Variables	[]Variable	`json:"variables"`
 }
 
 //Nature: data type
 type Variable struct {
-	Name		string	 `json:"name"`
-	Content		[]byte 	 `json:"content"`
+	Name		string		`json:"name"`
+	Content		string		`json:"content"`
 }
 
 type Point struct {
