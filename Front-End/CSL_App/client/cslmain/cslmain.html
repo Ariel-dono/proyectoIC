@@ -38,7 +38,10 @@
     <div class='overMap'>
         <nav class="background-csl-pane csl-bottom-pane">
             <ul class="center">
-                <li><a id='cslmanproy' href="#modal1" class="waves-effect waves-green absolute-left-rounded">Gestionar Proyectos</a></li>
+                <li><a id='cslmanproy' href="#modalProjects" class="waves-effect waves-green absolute-left-rounded">Gestionar Proyectos</a></li>
+                {{#if selectedProject}}
+                    <li><a id='cslmanmat' href="#modalMaterials" class="waves-effect waves-green absolute-no-rounded">Gestionar Materiales</a></li>
+                {{/if}}
             </ul>
             <ul class="center right">
                 <li><a id='closecsl' class="waves-effect waves-red absolute-right-rounded">Cerrar</a></li>
@@ -46,4 +49,5 @@
         </nav>
     </div>
     {{> projects_management}}
+    {{> materials_management}}
 </template>

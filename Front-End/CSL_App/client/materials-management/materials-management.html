@@ -1,0 +1,105 @@
+<template name="materials_management">
+    <div id="modalMaterials" class="modal overMap">
+        <div class="modal-content">
+            <div class="col s12">
+                <label class="col s3 titleProject component-space">Project construction materials</label>
+                {{#if matspace.project_id}}
+                    <button id='showAddNewMaterial' class="btn-floating light-green waves-effect waves-light">
+                        <i class="material-icons">
+                            add
+                        </i>
+                    </button>
+                {{/if}}
+            </div>
+            <ul class="collapsible" data-collapsible="accordion">
+                {{#each matspace.materials}}
+                    <li>   
+                        <div class="collapsible-header waves-effect waves-green" data-value="{{@index}}">
+                            {{name}}
+                        </div>
+                        <div class="collapsible-body  right-align">
+                            <button class="edit element-rounded grey darken-3 waves-effect waves-light btn">
+                                <i class="material-icons left">
+                                    edit
+                                </i>
+                                Edit properties
+                            </button>
+                            <button class="remove element-rounded red darken-4 waves-effect waves-light btn">
+                                <i class="material-icons left">
+                                    delete_forever
+                                </i>
+                                Remove material
+                            </button>
+                        </div>
+                    </li>
+                {{/each}}
+            </ul>
+            {{#if addComponentVisible}}
+                <h5 class="title">Add new material</h5>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">extension</i>
+                    <input id="matNameField" type="text" value="{{matName}}" class="validate">
+                    <label for="lock_open">Material name</label>
+                </div>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">low_priority</i>
+                    <input id="matPriorityField" type="text" value="{{matPriority}}" class="validate">
+                    <label for="lock_open">Priority</label>
+                </div>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">sort</i>
+                    <input id="matTypeField" type="text" value="{{matType}}" class="validate">
+                    <label for="lock_open">Material type</label>
+                </div>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">people</i>
+                    <input id="matTrafficField" type="text" value="{{matTraffic}}" class="validate">
+                    <label for="lock_open">Worker traffic</label>
+                </div>
+                <div class="component-space input-field col s12  right-align">
+                    <button id="saveModalMaterials" class="element-rounded green darken-3 waves-effect waves-light btn">
+                        <i class="material-icons left">
+                            create_new_folder
+                        </i>
+                        Create
+                    </button>
+                </div>
+            {{/if}}
+            {{#if editComponentVisible}}
+                <h5 class="title">Edit project</h5>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">extension</i>
+                    <input id="matNameField" type="text" value="{{matName}}" class="validate" placeholder="Material name">
+                </div>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">low_priority</i>
+                    <input id="matPriorityField" type="text" value="{{matPriority}}" class="validate" placeholder="Priority">
+                </div>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">sort</i>
+                    <input id="matTypeField" type="text" value="{{matType}}" class="validate" placeholder="Material type">
+                </div>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">people</i>
+                    <input id="matTrafficField" type="text" value="{{matTraffic}}" class="validate" placeholder="Worker traffic">
+                </div>
+                <div class="component-space input-field col s12  right-align">
+                    <button id="editModalMaterials" class="element-rounded green darken-3 waves-effect waves-light btn">
+                        <i class="material-icons left">
+                            edit
+                        </i>
+                        Edit
+                    </button>
+                </div>
+            {{/if}}
+            <div class="component-space input-field col s12  right-align">
+                <button id="closeModalMat" class="element-rounded grey darken-3 waves-effect waves-light btn">
+                    <i class="material-icons left">
+                        highlight_off
+                    </i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
