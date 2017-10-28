@@ -7,7 +7,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
 
 import { GlobalAppState } from '../global-state';
-import {loadProject} from '../cslmain/cslmain';
+import {loadProject,cleanProject} from '../cslmain/cslmain';
 
 Template.projects_management.onCreated(function homeOnCreated() {
     this.projectName = new ReactiveVar('')
@@ -160,18 +160,18 @@ Template.projects_management.events({
 
                 Meteor.call("deleteMaterials", {key:instance.selectedProject.get().id},
                 (error, result) => {
-                    console.log(result)
-
-                    GlobalAppState.materials = {
-                        project_id: "",
-                        materials: [],
-                        active_materials:[]
-                    }
-                    
-                    GlobalAppState.templateContext.get('CSL').selectedProject.set(false)
-                    instance.editComponentVisible.set(false)
-                    instance.addComponentVisible.set(false)                    
+                                
                     if(result.code > 0){
+                        GlobalAppState.materials = {
+                            project_id: "",
+                            materials: [],
+                            active_materials:[]
+                        }
+                        
+                        GlobalAppState.templateContext.get('CSL').selectedProject.set(false)
+                        instance.editComponentVisible.set(false)
+                        instance.addComponentVisible.set(false)        
+                        cleanProject();
                         notify("Materials space: " + result.state.message, 3000, 'rounded')
                     }
                     else{

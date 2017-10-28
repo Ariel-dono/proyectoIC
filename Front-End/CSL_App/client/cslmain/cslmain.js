@@ -2,7 +2,6 @@ import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 
 import * as mapboxgl from 'mapbox-gl';
-import * as MapboxGeocoder from 'mapbox-gl-geocoder';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import turf from '@turf/turf';
 
@@ -70,7 +69,6 @@ function setNameLayer(pName, pType) {
 
 function createLayerElement(position) {// position from CONTROL_LIST, the function generates a structures that is needed for create a mapbox-layer.
     newLayer = {};
-    console.log("Posicion: "+ position);
     if (CONTROL_LIST[position][CONTROL_TYPE] == CONTROL_FILLTYPE) {
         newLayer = setNameLayer(CONTROL_LIST[position][CONTROL_ID], 'fill');
         CONTROL_LIST[position][CONTROL_LAST_ID] = CONTROL_LIST[position][CONTROL_ID];
@@ -178,7 +176,6 @@ function colissionOn2Poly(pFirst,pSecond){
 
 function existCollision(pData,pControlLevelNumber){
     var retorno=false;
-    //console.log("length stages: "+pData.features.length)
     var counter,counter2;
     for(counter=0; counter < pData.features.length;counter++){
         var inputElement= turf.polygon(pData.features[counter].geometry.coordinates);
@@ -286,7 +283,6 @@ function setFreeArea(){
             }
         }
     }
-    //console.log(result);
     return result;
 }
 
@@ -316,7 +312,6 @@ function createLayer(pControlNumb,pData){
 }
 
 function setDataOnLayer(pData){
-    //console.log(pData)
     if (layerExists(controlLevelNumber)){
         if (isValidatedLevel(pData,controlLevelNumber)){
             deleteLayer(controlLevelNumber);
@@ -340,9 +335,6 @@ function parsingMapJSON() {
     layer = {}
     layer.level=controlLevelNumber
     currSource= GlobalAppState.map.getSource(CONTROL_LIST[layer.level][CONTROL_ID]);
-    console.log("lawea ya sirve");
-    console.log(GlobalAppState.map.getSource(CONTROL_LIST[layer.level][CONTROL_ID])._data);
-
     if(currSource!=undefined)
     {
         layer.stages=[]
@@ -366,25 +358,20 @@ function parsingMapJSON() {
         else
             jsonInfo.layers.push(layer)
     }
-
-    console.log("jsonInfo");
-    console.log(jsonInfo);
     return jsonInfo;
 }
 
-function deleteAllMap(){
-    for(counter=0;counter< CONTROL_LIST.length;counter++){
-        if (layerExists(counter)){
-            deleteLayer(controlLevelNumber);
+export function cleanProject(){
+    GlobalAppState.draw.deleteAll();//delete trash from draw tool
+    for(counter=0;counter<CONTROL_LIST;counter++){//delete trash from mapbox
+        if(layerExists(counter)){
+            deleteLayer(counter);
         }
     }
 }
 
 export function loadProject(pProject){
-    //console.log("Traido de la BD:"+pProject);
     levelList=new Array();
-    //inicializar una lista de collections
-    //console.log("F1:"+CONTROL_LIST.length);
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         levelList.push({
             type:"FeatureCollection",
@@ -421,25 +408,25 @@ export function loadProject(pProject){
         }
     }
     controlLevelNumber=currLevel;
-    //updateUIControlLevel(controlLevelNumber);
-    //setControlDraw(controlLevelNumber);
+    updateUIControlLevel(controlLevelNumber);
+    setControlDraw(controlLevelNumber);
 }
 
 //======================Sistema de control========================================================================
 
-
 function updateUIControlLevel(pControlLevel){
+    
     for (counter = 0; counter < CONTROL_LIST.length; counter++) {
-        if (pControlLevel == counter) Template.instance().$('#'+CONTROL_LIST[counter][CONTROL_ID]).addClass('selectedLevelActive');
-        else Template.instance().$('#'+CONTROL_LIST[counter][CONTROL_ID]).removeClass('selectedLevelActive');
+        if (pControlLevel == counter) GlobalAppState.templateContext.get('CSL').$('#'+CONTROL_LIST[counter][CONTROL_ID]).addClass('selectedLevelActive');
+        else GlobalAppState.templateContext.get('CSL').$('#'+CONTROL_LIST[counter][CONTROL_ID]).removeClass('selectedLevelActive');
     }
 }
 
 function showButtonOnMapLayer(pElement){
     list = ['.mapbox-gl-draw_polygon', '.mapbox-gl-draw_line', '.mapbox-gl-draw_point'];
     for (counter = 0; counter < list.length; counter++) {
-        if (pElement == counter) Template.instance().$(list[pElement]).css("display", 'block');
-        else Template.instance().$(list[counter]).css("display", 'none');
+        if (pElement == counter) GlobalAppState.templateContext.get('CSL').$(list[pElement]).css("display", 'block');
+        else GlobalAppState.templateContext.get('CSL').$(list[counter]).css("display", 'none');
     }
 }
 
@@ -569,11 +556,9 @@ Template.CSL.events({
                 GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
                 Meteor.call("saveProject", GlobalAppState.project,
                     (error, result) => {
-                        //console.log(result)
                         if(result.code > 0){
                             Meteor.call("getProject", {key:GlobalAppState.project.key},
                                 (error, result) => {
-                                    console.log(result)
                                     if(result !== undefined){
                                         GlobalAppState.project.project_instance = result;                     
                                         notify("Proyecto guardado", 3000, 'rounded')
@@ -628,19 +613,6 @@ Template.CSL.onRendered(
         
         GlobalAppState.map.addControl(GlobalAppState.draw);//add controls on mapbox, set the draw tool
         setControlDraw(controlLevelNumber);//Set the button of the first level
-
-        /*console.log("Sistema de geolocalizador 1")
-        MapboxGeocoder.query('Montreal Quebec');
-        
-        console.log("Sistema de geolocalizador 2 ")
-        MapboxGeocoder.on('results', function(e) {
-            console.log('results: ', e.features);
-        });
-        
-        geocoder.on('error', function(e) {
-            console.log('Error is', e.error);
-        });
-        */
 
         GlobalAppState.map.on('load', function () {
         initAllLevels(); //initialize all the layers on the map.
