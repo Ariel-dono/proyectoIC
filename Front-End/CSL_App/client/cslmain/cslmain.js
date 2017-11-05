@@ -38,13 +38,13 @@ let CONTROL_LIST = [
 /*4  F */[CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', ''],
 /*5  F */[CONTROL_FILLTYPE, 'csltemp', 'Establecer la construccion temporal', '#42a5f5', ''],
 /*6  L */[CONTROL_LINETYPE, 'cslcivil', 'Establecer los caminos de civiles', '#333', ''],
-/*7  C */[CONTROL_CIRCLETYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
+/*7  C */[CONTROL_FILLTYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
 /*8  F */[CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', '']
 ]
 
-function setLevelController()
-{
-    controlLevelNumber++;
+function setLevelController(){
+    if(controlLevelNumber<CONTROL_LIST.length)
+        controlLevelNumber++;
 }
 
 function getControlLevelById(pId){
@@ -260,7 +260,8 @@ function isValidatedLevel(pData, pControlLevelNumber){
                     notify("Elemento debe estar contenido en el area del sitio", 3000, 'rounded')
                 }
             }
-        }   
+        }
+        else{return true}   
     }
     else {
         //el area 8 es igual al nivel [0] menos la interseccion de los niveles [1,6]
@@ -309,6 +310,7 @@ function createLayer(pControlNumb,pData){
     newLayer = createLayerElement(controlLevelNumber);
     newLayer.source.data = pData;
     GlobalAppState.map.addLayer(newLayer);
+    setControlOnLayer(pControlNumb);
 }
 
 function setDataOnLayer(pData){
@@ -328,6 +330,49 @@ function setDataOnLayer(pData){
     return false;
 }
 
+function setControlOnLayer(pControlNumb){
+    if(pControlNumb != 0){
+        GlobalAppState.map.on('dblclick', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
+            lat=e.lngLat.lat;
+            lng=e.lngLat.lng;
+            //console.log(e.lngLat)
+            layerId= e.features[0].layer.id;
+            idStage=getStageIdFromMap(lat,lng,layerId);
+            console.log(idStage);
+            
+        });
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        GlobalAppState.map.on('mouseenter', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
+            GlobalAppState.map.getCanvas().style.cursor = 'pointer';
+        });
+        // Change it back to a pointer when it leaves.
+        GlobalAppState.map.on('mouseleave', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
+            GlobalAppState.map.getCanvas().style.cursor = '';
+        });
+    }
+}
+
+function getStageIdFromMap(pLat,pLng,pLayerId){
+    try{
+        mapSource=GlobalAppState.map.getSource(pLayerId); 
+        stageList=mapSource._data.features;
+        point = turf.point([pLng, pLat]);        
+        for(counter=0;counter<stageList.length;counter++){
+            geo = stageList[counter].geometry;
+            id = stageList[counter].id;
+            poly=turf.polygon(geo.coordinates);
+            if(turf.inside(point,poly)){
+                return id;
+            }
+        }
+    }
+    catch(e){
+        console.log("source do no exist:");
+        console.log(e)
+    }
+    return undefined;
+}
+
 //======================Parser GEOJSON========================================================================
 function parsingMapJSON() {
     jsonInfo={};
@@ -344,8 +389,7 @@ function parsingMapJSON() {
             currResult.variables=[]
             currResult.vectors_sequence=[]
             for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
-            {
-                //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
+            {   //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
                 currResult.vectors_sequence.push({
                     x: currSource._data.features[counter2].geometry.coordinates[0][counter3][0],
                     y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
