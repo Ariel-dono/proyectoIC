@@ -29,6 +29,8 @@ let CONTROL_CIRCLETYPE = 2;
 
 let opacity = 0.6;
 
+let shiftControl=false;
+
 //agregar al arreglo
 let CONTROL_LIST = [
 /*0  F */[CONTROL_FILLTYPE, 'cslplano', 'Establecer las area del plano', '#FFFFFF', ''],
@@ -332,14 +334,15 @@ function setDataOnLayer(pData){
 
 function setControlOnLayer(pControlNumb){
     if(pControlNumb != 0){
-        GlobalAppState.map.on('dblclick', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
+        GlobalAppState.map.on('click', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
             lat=e.lngLat.lat;
             lng=e.lngLat.lng;
             //console.log(e.lngLat)
             layerId= e.features[0].layer.id;
             idStage=getStageIdFromMap(lat,lng,layerId);
-            console.log(idStage);
-            
+            if(shiftControl){
+                console.log("jelou motherfucker "+idStage)
+            }
         });
         // Change the cursor to a pointer when the mouse is over the places layer.
         GlobalAppState.map.on('mouseenter', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
@@ -373,6 +376,8 @@ function getStageIdFromMap(pLat,pLng,pLayerId){
     return undefined;
 }
 
+
+
 //======================Parser GEOJSON========================================================================
 function parsingMapJSON() {
     jsonInfo={};
@@ -402,6 +407,8 @@ function parsingMapJSON() {
         else
             jsonInfo.layers.push(layer)
     }
+    console.log("geojsonparser")
+    console.log(jsonInfo)
     return jsonInfo;
 }
 
@@ -428,8 +435,6 @@ export function loadProject(pProject){
             var feature=new Object();
             feature.properties=new Object();
             feature.type="Feature";
-            currLevel=pProject.project_instance.layers[counter].level;
-            feature.id=currLevel.id;
             var geometry=new Object();
             geometry.type="Polygon";
             geometry.coordinates=new Array();
@@ -439,11 +444,13 @@ export function loadProject(pProject){
                 y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
                 geometry.coordinates[0].push([x,y]);
             }
-            
+            feature.id=pProject.project_instance.layers[counter].stages[counter2].id;
             feature.geometry=geometry;
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
+    console.log("geojsonloader")
+    console.log(levelList)
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
@@ -619,9 +626,11 @@ Template.CSL.events({
                         }
                     }
                 )
+                
+                setControlDraw(controlLevelNumber);
+
                 setLevelController();
                 updateUIControlLevel(controlLevelNumber);//Muestra en ui nivel actual
-                setControlDraw(controlLevelNumber);
                 GlobalAppState.draw.deleteAll();
             }
         }
@@ -633,6 +642,13 @@ Template.CSL.onRendered(
     function () {
         $('.button-collapse').sideNav('show')
         $('#cslplano').addClass('selectedLevelActive');
+
+        $("#map").keydown(function (e) {
+            shiftControl=true;
+        });
+        $("#map").keyup(function (e) {
+            shiftControl=false;
+        });
         //$('#cslplano').removeClass('selectedLevelActive');
 
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
@@ -657,7 +673,7 @@ Template.CSL.onRendered(
         
         GlobalAppState.map.addControl(GlobalAppState.draw);//add controls on mapbox, set the draw tool
         setControlDraw(controlLevelNumber);//Set the button of the first level
-
+        
         GlobalAppState.map.on('load', function () {
         initAllLevels(); //initialize all the layers on the map.
 
