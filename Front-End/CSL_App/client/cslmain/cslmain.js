@@ -385,9 +385,9 @@ function parsingMapJSON() {
         layer.stages=[]
         for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
             currResult={}
-            currResult.description=""
             currResult.variables=[]
             currResult.vectors_sequence=[]
+            currResult.id=currSource._data.features[counter2].id;
             for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
             {   //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
                 currResult.vectors_sequence.push({
@@ -429,7 +429,7 @@ export function loadProject(pProject){
             feature.properties=new Object();
             feature.type="Feature";
             currLevel=pProject.project_instance.layers[counter].level;
-            feature.id="c"+counter+"cc"+counter2+"level"+pProject.project_instance.layers[counter].level;
+            feature.id=currLevel.id;
             var geometry=new Object();
             geometry.type="Polygon";
             geometry.coordinates=new Array();
@@ -439,11 +439,11 @@ export function loadProject(pProject){
                 y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
                 geometry.coordinates[0].push([x,y]);
             }
+            
             feature.geometry=geometry;
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
-
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
