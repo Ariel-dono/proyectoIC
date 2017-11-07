@@ -15,7 +15,6 @@ GlobalAppState.draw = new MapboxDraw();
 //Buttons Left Panel Control: ----------
 let controlLevelNumber = 0;//set the functionality on the buttons on system
 let controlDrawingId = 0;//set the properties on geojson
-let controlInputRadius = 15;//set radius when it is on the id: cslgruas.
 
 let CONTROL_TYPE = 0;
 let CONTROL_ID = 1;
@@ -43,19 +42,6 @@ let CONTROL_LIST = [
 /*7  C */[CONTROL_FILLTYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
 /*8  F */[CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', '']
 ]
-
-function setLevelController(){
-    if(controlLevelNumber<CONTROL_LIST.length)
-        controlLevelNumber++;
-}
-
-function getControlLevelById(pId){
-    result=-1
-    for(counter=0;counter<CONTROL_LIST;counter++){
-        if(CONTROL_LIST[counter][CONTROL_ID]==pId) return counter;
-    }
-    return result;
-}
 
 //=================================================Estructura de geojason=========================================================
 function setNameLayer(pName, pType) {
@@ -135,13 +121,13 @@ function initAllLevels(){
     }
 }
 
-//======================Validaciones de Colisiones de los Stages========================================================================
+//======================TURF: Validaciones de Colisiones de los Stages========================================================================
 
 function isContainedOnSite(pData,pControlLevelNumber,pLevelNumber){
     var site=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[pLevelNumber][CONTROL_ID])._data.features[0].geometry.coordinates);
     for(counter=0;counter<pData.features.length;counter++){
         var inputElement= turf.polygon(pData.features[counter].geometry.coordinates);
-        var difference = turf.difference(inputElement, site);//opuesto me da el area restante de inputElement
+        var difference = turf.difference(inputElement, site);
         if(difference!=undefined)
             return false;
     }
@@ -169,7 +155,7 @@ function featureEqualFeature(firstPolygon,secondPolygon){
 }
 
 function colissionOn2Poly(pFirst,pSecond){
-    var difference = turf.difference(pFirst, pSecond);//opuesto me da el area restante de inputElement
+    var difference = turf.difference(pFirst, pSecond);
     if(!featureEqualFeature(pFirst,difference)){//Tienen interseccion dif vacio: false / Tienen interseccion igual vacio: true
         return true;
     }
@@ -289,7 +275,7 @@ function setFreeArea(){
     return result;
 }
 
-//======================Control de layers en Map========================================================================
+//======================Sistema de Control para elementos en MapBox========================================================================
 function layerExists(pControlNumb){
     if(GlobalAppState.map.getLayer(CONTROL_LIST[pControlNumb][CONTROL_ID]) != undefined)
         return true;
@@ -337,11 +323,10 @@ function setControlOnLayer(pControlNumb){
         GlobalAppState.map.on('click', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
             lat=e.lngLat.lat;
             lng=e.lngLat.lng;
-            //console.log(e.lngLat)
             layerId= e.features[0].layer.id;
             idStage=getStageIdFromMap(lat,lng,layerId);
             if(shiftControl){
-                console.log("jelou motherfucker "+idStage)
+                console.log("Stage ID: "+idStage)
             }
         });
         // Change the cursor to a pointer when the mouse is over the places layer.
@@ -376,9 +361,21 @@ function getStageIdFromMap(pLat,pLng,pLayerId){
     return undefined;
 }
 
+function setLevelController(){
+    if(controlLevelNumber<CONTROL_LIST.length)
+        controlLevelNumber++;
+}
+
+function getControlLevelById(pId){
+    result=-1
+    for(counter=0;counter<CONTROL_LIST;counter++){
+        if(CONTROL_LIST[counter][CONTROL_ID]==pId) return counter;
+    }
+    return result;
+}
 
 
-//======================Parser GEOJSON========================================================================
+//======================Save - Load Project========================================================================
 function parsingMapJSON() {
     jsonInfo={};
     jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : []
@@ -394,7 +391,7 @@ function parsingMapJSON() {
             currResult.vectors_sequence=[]
             currResult.id=currSource._data.features[counter2].id;
             for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
-            {   //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
+            {   
                 currResult.vectors_sequence.push({
                     x: currSource._data.features[counter2].geometry.coordinates[0][counter3][0],
                     y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
@@ -407,14 +404,13 @@ function parsingMapJSON() {
         else
             jsonInfo.layers.push(layer)
     }
-    console.log("geojsonparser")
-    console.log(jsonInfo)
     return jsonInfo;
 }
 
 export function cleanProject(){
     GlobalAppState.draw.deleteAll();//delete trash from draw tool
-    for(counter=0;counter<CONTROL_LIST;counter++){//delete trash from mapbox
+    for(counter=0;counter<CONTROL_LIST.length;counter++){//delete trash from mapbox
+        console.log(counter)
         if(layerExists(counter)){
             deleteLayer(counter);
         }
@@ -449,8 +445,6 @@ export function loadProject(pProject){
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
-    console.log("geojsonloader")
-    console.log(levelList)
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
@@ -463,7 +457,7 @@ export function loadProject(pProject){
     setControlDraw(controlLevelNumber);
 }
 
-//======================Sistema de control========================================================================
+//======================Sistema de control - UI========================================================================
 
 function updateUIControlLevel(pControlLevel){
     
@@ -482,8 +476,25 @@ function showButtonOnMapLayer(pElement){
 }
 
 function setControlDraw(pControlLevel){
+    if(pControlLevel==CONTROL_LIST.length){
+        control=CONTROL_LIST[CONTROL_LIST.length-1][CONTROL_TYPE];
+        showButtonOnMapLayer(control);
+        return;
+    }
     control=CONTROL_LIST[pControlLevel][CONTROL_TYPE];
     showButtonOnMapLayer(control);
+}
+
+function initQueryElements(){
+    $('.button-collapse').sideNav('show')
+    $('#cslplano').addClass('selectedLevelActive');
+
+    $("#map").keydown(function (e) {
+        shiftControl=true;
+    });
+    $("#map").keyup(function (e) {
+        shiftControl=false;
+    });
 }
 
 //==============================Meteor========================================================================
@@ -583,7 +594,6 @@ Template.CSL.events({
     'click #cslgruas'(event, instance) {
         event.preventDefault();
         controlLevelNumber = 7;
-        controlInputRadius = 20; //esto tiene que ser una entrada.
         setControlDraw(controlLevelNumber);
         if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
         ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
@@ -626,10 +636,8 @@ Template.CSL.events({
                         }
                     }
                 )
-                
-                setControlDraw(controlLevelNumber);
-
                 setLevelController();
+                setControlDraw(controlLevelNumber);
                 updateUIControlLevel(controlLevelNumber);//Muestra en ui nivel actual
                 GlobalAppState.draw.deleteAll();
             }
@@ -640,17 +648,8 @@ Template.CSL.events({
 //Establecer funciones de inicializacion del sistema
 Template.CSL.onRendered(
     function () {
-        $('.button-collapse').sideNav('show')
-        $('#cslplano').addClass('selectedLevelActive');
-
-        $("#map").keydown(function (e) {
-            shiftControl=true;
-        });
-        $("#map").keyup(function (e) {
-            shiftControl=false;
-        });
-        //$('#cslplano').removeClass('selectedLevelActive');
-
+        initQueryElements()
+        //Llave proveída a los usuarios de la herramienta de mapbox.
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
         GlobalAppState.map = new mapboxgl.Map({
             center: [-84.10563996507328, 9.979042286713366],
@@ -675,33 +674,12 @@ Template.CSL.onRendered(
         setControlDraw(controlLevelNumber);//Set the button of the first level
         
         GlobalAppState.map.on('load', function () {
-        initAllLevels(); //initialize all the layers on the map.
-
+            initAllLevels(); //initialize all the layers on the map.
             var layers = GlobalAppState.map.getStyle().layers.reverse();
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
             });
             
-            /*GlobalAppState.map.on('dblclick', 'cslplano', function (e) {
-                polygon = turf.polygon(e.features[0].geometry.coordinates);
-                center = turf.centerOfMass(polygon);
-                var area = turf.area(polygon);
-                //console.log("CENTER:"+center.geometry.coordinates);
-                notify("Area: "+area+" m2", 3000, 'rounded')
-                new mapboxgl.Popup()
-                    .setLngLat(center.geometry.coordinates)
-                    .setHTML("<h4>Here is a ne element</h4>")
-                    .addTo(map);
-            });*/
-            /*      map.on('mouseenter', 'cslplano', function () {
-                    map.getCanvas().style.cursor = 'pointer';
-                });
-            
-                // Change it back to a pointer when it leaves.
-                map.on('mouseleave', 'cslplano', function () {
-                    map.getCanvas().style.cursor = '';
-                });
-            */
             var labelLayerId = labelLayerIdx !== -1 ? layers[labelLayerIdx].id : undefined;
             GlobalAppState.map.addLayer({
                 'id': '3d-buildings',

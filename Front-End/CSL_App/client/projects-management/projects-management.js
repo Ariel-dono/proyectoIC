@@ -43,6 +43,7 @@ Template.projects_management.events({
         projectId = GlobalAppState.namespacing.username + ":" + projectId
         if(projectName){
             GlobalAppState.namespacing.projects.push({id:projectId, name:projectName})
+            cleanProject();
             let toUpdateNamespace = {
                 "username": GlobalAppState.namespacing.username,
                 "projects": GlobalAppState.namespacing.projects
@@ -200,6 +201,7 @@ Template.projects_management.events({
     'click #showAddNewProject':function(event, instance){
         instance.projectName.set('')
         instance.editComponentVisible.set(false)
+        cleanProject()
         if(instance.addComponentVisible.get() === false)
             instance.addComponentVisible.set(true)
     },
@@ -214,6 +216,7 @@ Template.projects_management.events({
             instance.projectName.set('')
             instance.editComponentVisible.set(false)
             instance.addComponentVisible.set(false)
+            cleanProject();
             loadProject(GlobalAppState.project)
             GlobalAppState.getRequest("getMaterials",  {key:GlobalAppState.project.key}, 
             "Getting material supplies",
