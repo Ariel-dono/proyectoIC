@@ -15,7 +15,6 @@ GlobalAppState.draw = new MapboxDraw();
 //Buttons Left Panel Control: ----------
 let controlLevelNumber = 0;//set the functionality on the buttons on system
 let controlDrawingId = 0;//set the properties on geojson
-let controlInputRadius = 15;//set radius when it is on the id: cslgruas.
 
 let CONTROL_TYPE = 0;
 let CONTROL_ID = 1;
@@ -29,6 +28,9 @@ let CONTROL_CIRCLETYPE = 2;
 
 let opacity = 0.6;
 
+let shiftControl=false;
+let cleanMode=false;
+
 //agregar al arreglo
 let CONTROL_LIST = [
 /*0  F */[CONTROL_FILLTYPE, 'cslplano', 'Establecer las area del plano', '#FFFFFF', ''],
@@ -38,70 +40,51 @@ let CONTROL_LIST = [
 /*4  F */[CONTROL_FILLTYPE, 'cslconstrucc', 'Establecer la huella de la construcción', '#ffcc00', ''],
 /*5  F */[CONTROL_FILLTYPE, 'csltemp', 'Establecer la construccion temporal', '#42a5f5', ''],
 /*6  L */[CONTROL_LINETYPE, 'cslcivil', 'Establecer los caminos de civiles', '#333', ''],
-/*7  C */[CONTROL_CIRCLETYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
+/*7  C */[CONTROL_FILLTYPE, 'cslgruas', 'Establecer las gruas', '#1E90FF', ''],
 /*8  F */[CONTROL_FILLTYPE, 'csllibres', 'Establecer las areas libres', '#90EE90', '']
 ]
 
-function setLevelController()
-{
-    controlLevelNumber++;
-}
-
-function getControlLevelById(pId){
-    result=-1
-    for(counter=0;counter<CONTROL_LIST;counter++){
-        if(CONTROL_LIST[counter][CONTROL_ID]==pId) return counter;
-    }
-    return result;
-}
-
 //=================================================Estructura de geojason=========================================================
-function setNameLayer(pName, pType) {
-    layer = {
-        "id": pName,
-        "type": pType,
-        "source": {
-            "type": "geojson"
-        }
-    };
-    return layer;
-}
 
-function createLayerElement(position) {// position from CONTROL_LIST, the function generates a structures that is needed for create a mapbox-layer.
-    newLayer = {};
-    if (CONTROL_LIST[position][CONTROL_TYPE] == CONTROL_FILLTYPE) {
-        newLayer = setNameLayer(CONTROL_LIST[position][CONTROL_ID], 'fill');
-        CONTROL_LIST[position][CONTROL_LAST_ID] = CONTROL_LIST[position][CONTROL_ID];
-        newLayer.paint =
-            {
-                'fill-color': CONTROL_LIST[position][CONTROL_COLOR],
-                'fill-opacity': opacity
-            };
+function initLayer(pControlLevel){
+    var pId=CONTROL_LIST[pControlLevel][CONTROL_ID]
+    var newLayer={
+        'id': pId,
+        'source': {
+            'type': 'geojson',
+            'data': turf.featureCollection([])
+        }
     }
-    else if (CONTROL_LIST[position][CONTROL_TYPE] == CONTROL_LINETYPE) {
-        newLayer = setNameLayer(CONTROL_LIST[position][CONTROL_ID], 'line');
-        CONTROL_LIST[position][CONTROL_LAST_ID] = CONTROL_LIST[position][CONTROL_ID];
+    if (CONTROL_LIST[pControlLevel][CONTROL_TYPE] == CONTROL_FILLTYPE) {
+        newLayer.type = 'fill'
         newLayer.paint =
-            {
-                "line-color": CONTROL_LIST[position][CONTROL_COLOR],
-                "line-width": 3.5
-            };
+        {
+            'fill-color': CONTROL_LIST[pControlLevel][CONTROL_COLOR],
+            'fill-opacity': opacity
+        }
+    }
+    else if (CONTROL_LIST[pControlLevel][CONTROL_TYPE] == CONTROL_LINETYPE) {
+        newLayer.type = 'line'
+        newLayer.paint =
+        {
+            "line-color": CONTROL_LIST[pControlLevel][CONTROL_COLOR],
+            "line-width": 2
+        };
         newLayer.layout =
-            {
-                "line-join": "round",
-                "line-cap": "round"
-            };
+        {
+            "line-join": "round",
+            "line-cap": "round"
+        };
     }
-    else if (CONTROL_LIST[position][CONTROL_TYPE] == CONTROL_CIRCLETYPE) {
-        newLayer = setNameLayer(CONTROL_LIST[position][CONTROL_ID], 'circle');
-        CONTROL_LIST[position][CONTROL_LAST_ID] = CONTROL_LIST[position][CONTROL_ID];
+    else if (CONTROL_LIST[pControlLevel][CONTROL_TYPE] == CONTROL_CIRCLETYPE) {
+        newLayer.type = 'circle'
         newLayer.paint =
         {
             "circle-radius": {
                 'base': 1.75,
-                'stops': [[12, 2], [23, 50]]
+                'stops': [[12, 1], [23, 50]]
             },
-            "circle-color": CONTROL_LIST[position][CONTROL_COLOR],
+            "circle-color": CONTROL_LIST[pControlLevel][CONTROL_COLOR],
             'circle-opacity': opacity
         };
     }
@@ -124,22 +107,25 @@ function temporal(data){
     });
 }
 
+
 function initAllLevels(){
     for(counter=0;counter<CONTROL_LIST.length;counter++){
+        controlLevelNumber=counter
         setDataOnLayer({
             type:"FeatureCollection",
             features: []
         });
     }
+    controlLevelNumber=0
 }
 
-//======================Validaciones de Colisiones de los Stages========================================================================
+//======================TURF: Validaciones de Colisiones de los Stages========================================================================
 
 function isContainedOnSite(pData,pControlLevelNumber,pLevelNumber){
     var site=turf.polygon(GlobalAppState.map.getSource(CONTROL_LIST[pLevelNumber][CONTROL_ID])._data.features[0].geometry.coordinates);
     for(counter=0;counter<pData.features.length;counter++){
         var inputElement= turf.polygon(pData.features[counter].geometry.coordinates);
-        var difference = turf.difference(inputElement, site);//opuesto me da el area restante de inputElement
+        var difference = turf.difference(inputElement, site);
         if(difference!=undefined)
             return false;
     }
@@ -167,7 +153,7 @@ function featureEqualFeature(firstPolygon,secondPolygon){
 }
 
 function colissionOn2Poly(pFirst,pSecond){
-    var difference = turf.difference(pFirst, pSecond);//opuesto me da el area restante de inputElement
+    var difference = turf.difference(pFirst, pSecond);
     if(!featureEqualFeature(pFirst,difference)){//Tienen interseccion dif vacio: false / Tienen interseccion igual vacio: true
         return true;
     }
@@ -260,7 +246,8 @@ function isValidatedLevel(pData, pControlLevelNumber){
                     notify("Elemento debe estar contenido en el area del sitio", 3000, 'rounded')
                 }
             }
-        }   
+        }
+        else{return true}   
     }
     else {
         //el area 8 es igual al nivel [0] menos la interseccion de los niveles [1,6]
@@ -286,7 +273,7 @@ function setFreeArea(){
     return result;
 }
 
-//======================Control de layers en Map========================================================================
+//======================Sistema de Control para elementos en MapBox========================================================================
 function layerExists(pControlNumb){
     if(GlobalAppState.map.getLayer(CONTROL_LIST[pControlNumb][CONTROL_ID]) != undefined)
         return true;
@@ -301,34 +288,101 @@ function sourceExists(pControlNumb){
 
 function deleteLayer(pControlNumb){
     GlobalAppState.map.removeLayer(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
-    if(sourceExists(pControlNumb))
-        GlobalAppState.map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
 }
 
-function createLayer(pControlNumb,pData){
-    newLayer = createLayerElement(controlLevelNumber);
-    newLayer.source.data = pData;
+function deleteSource(pControlNumb){
+    GlobalAppState.map.removeSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID]);
+}
+
+function initLayers(){
+    for(counter=0;counter<CONTROL_LIST.length;counter++){
+        createLayer(counter)
+    }
+}
+
+function createLayer(pControlNumb){
+    newLayer = initLayer(pControlNumb);
     GlobalAppState.map.addLayer(newLayer);
 }
 
-function setDataOnLayer(pData){
-    if (layerExists(controlLevelNumber)){
-        if (isValidatedLevel(pData,controlLevelNumber)){
-            deleteLayer(controlLevelNumber);
-            createLayer(controlLevelNumber,pData);
-            return true;
-        }
+function setSourceOnLayer(pControlLevelNumber,pData){
+    if(layerExists(pControlLevelNumber)){
+        deleteLayer(pControlLevelNumber)
     }
-    else{
-        if (isValidatedLevel(pData,controlLevelNumber)){
-            createLayer(controlLevelNumber,pData);
-            return true;
-        }
+    if(sourceExists(pControlLevelNumber)){
+        deleteSource(pControlLevelNumber)
     }
-    return false;
+    var newLayer = initLayer(pControlLevelNumber);
+    newLayer.source.data=pData
+    GlobalAppState.map.addLayer(newLayer)
 }
 
-//======================Parser GEOJSON========================================================================
+function setDataOnLayer(pData){
+    if (isValidatedLevel(pData,controlLevelNumber) || cleanMode){
+        setSourceOnLayer(controlLevelNumber,pData);
+        return true;
+    }
+    return false;
+}   
+
+function setControlOnLayer(pControlNumb){
+    if(pControlNumb != 0){
+        /*GlobalAppState.map.on('click', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
+            lat=e.lngLat.lat;
+            lng=e.lngLat.lng;
+            layerId= e.features[0].layer.id;
+            idStage=getStageIdFromMap(lat,lng,layerId);
+            if(shiftControl){
+                console.log("Stage ID: "+idStage)
+            }
+        });
+        // Change the cursor to a pointer when the mouse is over the places layer.
+        GlobalAppState.map.on('mouseenter', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
+            GlobalAppState.map.getCanvas().style.cursor = 'pointer';
+        });
+        // Change it back to a pointer when it leaves.
+        GlobalAppState.map.on('mouseleave', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
+            GlobalAppState.map.getCanvas().style.cursor = '';
+        });*/
+    }
+}
+
+function getStageIdFromMap(pLat,pLng,pLayerId){
+    try{
+        mapSource=GlobalAppState.map.getSource(pLayerId); 
+        stageList=mapSource._data.features;
+        point = turf.point([pLng, pLat]);        
+        for(counter=0;counter<stageList.length;counter++){
+            geo = stageList[counter].geometry;
+            id = stageList[counter].id;
+            poly=turf.polygon(geo.coordinates);
+            if(turf.inside(point,poly)){
+                return id;
+            }
+        }
+    }
+    catch(e){
+        console.log("source do no exist:");
+        console.log(e)
+    }
+    return undefined;
+}
+
+function setLevelController(){
+    if(controlLevelNumber<CONTROL_LIST.length)
+        controlLevelNumber++;
+}
+
+function getControlLevelById(pId){
+    result=-1
+    for(counter=0;counter<CONTROL_LIST;counter++){
+        if(CONTROL_LIST[counter][CONTROL_ID]==pId) return counter;
+    }
+    return result;
+}
+
+
+//======================Save - Load Project========================================================================
 function parsingMapJSON() {
     jsonInfo={};
     jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : []
@@ -340,16 +394,26 @@ function parsingMapJSON() {
         layer.stages=[]
         for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
             currResult={}
-            currResult.description=""
             currResult.variables=[]
             currResult.vectors_sequence=[]
-            for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
-            {
-                //console.log(currSource._data.features[counter2].geometry.coordinates[0][counter3]);
-                currResult.vectors_sequence.push({
-                    x: currSource._data.features[counter2].geometry.coordinates[0][counter3][0],
-                    y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
-                })
+            currResult.id=currSource._data.features[counter2].id;
+            if(CONTROL_LIST[layer.level][CONTROL_TYPE]==CONTROL_FILLTYPE){
+                for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
+                {   
+                    currResult.vectors_sequence.push({
+                        x: currSource._data.features[counter2].geometry.coordinates[0][counter3][0],
+                        y: currSource._data.features[counter2].geometry.coordinates[0][counter3][1]
+                    })
+                }
+            }
+            else if(CONTROL_LIST[layer.level][CONTROL_TYPE]==CONTROL_LINETYPE){
+                for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates.length;counter3++)
+                {   
+                    currResult.vectors_sequence.push({
+                        x: currSource._data.features[counter2].geometry.coordinates[counter3][0],
+                        y: currSource._data.features[counter2].geometry.coordinates[counter3][1]
+                    })
+                }
             }
             layer.stages.push(currResult)
         }
@@ -358,16 +422,16 @@ function parsingMapJSON() {
         else
             jsonInfo.layers.push(layer)
     }
+    console.log("json")
+    console.log(jsonInfo)
     return jsonInfo;
 }
 
 export function cleanProject(){
     GlobalAppState.draw.deleteAll();//delete trash from draw tool
-    for(counter=0;counter<CONTROL_LIST;counter++){//delete trash from mapbox
-        if(layerExists(counter)){
-            deleteLayer(counter);
-        }
-    }
+    cleanMode=true
+    initAllLevels()
+    cleanMode=false
 }
 
 export function loadProject(pProject){
@@ -384,22 +448,34 @@ export function loadProject(pProject){
             var feature=new Object();
             feature.properties=new Object();
             feature.type="Feature";
-            currLevel=pProject.project_instance.layers[counter].level;
-            feature.id="c"+counter+"cc"+counter2+"level"+pProject.project_instance.layers[counter].level;
             var geometry=new Object();
-            geometry.type="Polygon";
+            console.log("level de los elementos")
+            var Clevel=pProject.project_instance.layers[counter].level
             geometry.coordinates=new Array();
-            geometry.coordinates.push([]);
-            for(var counter3=0;counter3<pProject.project_instance.layers[counter].stages[counter2].vectors_sequence.length;counter3++){
-                x=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].x;
-                y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
-                geometry.coordinates[0].push([x,y]);
+            if(CONTROL_LIST[Clevel][CONTROL_TYPE]==CONTROL_FILLTYPE){
+                geometry.type="Polygon";
+                geometry.coordinates.push([]);
+                for(var counter3=0;counter3<pProject.project_instance.layers[counter].stages[counter2].vectors_sequence.length;counter3++){
+                    x=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].x;
+                    y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
+                    geometry.coordinates[0].push([x,y]);
+                }
             }
+            else if(CONTROL_LIST[Clevel][CONTROL_TYPE]==CONTROL_LINETYPE){
+                geometry.type="LineString";
+                for(var counter3=0;counter3<pProject.project_instance.layers[counter].stages[counter2].vectors_sequence.length;counter3++){
+                    x=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].x;
+                    y=pProject.project_instance.layers[counter].stages[counter2].vectors_sequence[counter3].y;
+                    geometry.coordinates.push([x,y]);
+                }
+            }
+            feature.id=pProject.project_instance.layers[counter].stages[counter2].id;
             feature.geometry=geometry;
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
-
+    console.log("levelList")
+    console.log(levelList)
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
@@ -412,7 +488,7 @@ export function loadProject(pProject){
     setControlDraw(controlLevelNumber);
 }
 
-//======================Sistema de control========================================================================
+//======================Sistema de control - UI========================================================================
 
 function updateUIControlLevel(pControlLevel){
     
@@ -431,8 +507,25 @@ function showButtonOnMapLayer(pElement){
 }
 
 function setControlDraw(pControlLevel){
+    if(pControlLevel==CONTROL_LIST.length){
+        control=CONTROL_LIST[CONTROL_LIST.length-1][CONTROL_TYPE];
+        showButtonOnMapLayer(control);
+        return;
+    }
     control=CONTROL_LIST[pControlLevel][CONTROL_TYPE];
     showButtonOnMapLayer(control);
+}
+
+function initQueryElements(){
+    $('.button-collapse').sideNav('show')
+    $('#cslplano').addClass('selectedLevelActive');
+
+    $("#map").keydown(function (e) {
+        shiftControl=true;
+    });
+    $("#map").keyup(function (e) {
+        shiftControl=false;
+    });
 }
 
 //==============================Meteor========================================================================
@@ -541,7 +634,6 @@ Template.CSL.events({
     'click #cslgruas'(event, instance) {
         event.preventDefault();
         controlLevelNumber = 7;
-        controlInputRadius = 20; //esto tiene que ser una entrada.
         setControlDraw(controlLevelNumber);
         if(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])!=undefined)
         ids = GlobalAppState.draw.set(GlobalAppState.map.getSource(CONTROL_LIST[controlLevelNumber][CONTROL_ID])._data);
@@ -585,8 +677,8 @@ Template.CSL.events({
                     }
                 )
                 setLevelController();
-                updateUIControlLevel(controlLevelNumber);//Muestra en ui nivel actual
                 setControlDraw(controlLevelNumber);
+                updateUIControlLevel(controlLevelNumber);//Muestra en ui nivel actual
                 GlobalAppState.draw.deleteAll();
             }
         }
@@ -596,10 +688,8 @@ Template.CSL.events({
 //Establecer funciones de inicializacion del sistema
 Template.CSL.onRendered(
     function () {
-        $('.button-collapse').sideNav('show')
-        $('#cslplano').addClass('selectedLevelActive');
-        //$('#cslplano').removeClass('selectedLevelActive');
-
+        initQueryElements()
+        //Llave proveída a los usuarios de la herramienta de mapbox.
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
         GlobalAppState.map = new mapboxgl.Map({
             center: [-84.10563996507328, 9.979042286713366],
@@ -609,49 +699,37 @@ Template.CSL.onRendered(
             trackResize: true,
             hash: true
         });
-
-        GlobalAppState.draw = new MapboxDraw({
-            displayControlsDefault: false,
-            controls: {
-                line_string: true,
-                point: true,
-                polygon: true,
-                trash: true
-            }
-        });
         
-        GlobalAppState.map.addControl(GlobalAppState.draw);//add controls on mapbox, set the draw tool
-        setControlDraw(controlLevelNumber);//Set the button of the first level
+        
 
+        
+        
+        
+        
+        
         GlobalAppState.map.on('load', function () {
-        initAllLevels(); //initialize all the layers on the map.
+            initLayers()
 
-            var layers = GlobalAppState.map.getStyle().layers.reverse();
+            GlobalAppState.draw = new MapboxDraw({
+                displayControlsDefault: false,
+                controls: {
+                    line_string: true,
+                    point: true,
+                    polygon: true,
+                    trash: true
+                }
+            })
+
+            GlobalAppState.map.addControl(GlobalAppState.draw)//add controls on mapbox, set the draw tool
+            setControlDraw(controlLevelNumber)//Set the button of the first level
+
+            initAllLevels(); //initialize all the layers on the map.
+            var layers = GlobalAppState.map.getStyle().layers.reverse()
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
             });
             
-            /*GlobalAppState.map.on('dblclick', 'cslplano', function (e) {
-                polygon = turf.polygon(e.features[0].geometry.coordinates);
-                center = turf.centerOfMass(polygon);
-                var area = turf.area(polygon);
-                //console.log("CENTER:"+center.geometry.coordinates);
-                notify("Area: "+area+" m2", 3000, 'rounded')
-                new mapboxgl.Popup()
-                    .setLngLat(center.geometry.coordinates)
-                    .setHTML("<h4>Here is a ne element</h4>")
-                    .addTo(map);
-            });*/
-            /*      map.on('mouseenter', 'cslplano', function () {
-                    map.getCanvas().style.cursor = 'pointer';
-                });
-            
-                // Change it back to a pointer when it leaves.
-                map.on('mouseleave', 'cslplano', function () {
-                    map.getCanvas().style.cursor = '';
-                });
-            */
-            var labelLayerId = labelLayerIdx !== -1 ? layers[labelLayerIdx].id : undefined;
+            var labelLayerId = labelLayerIdx !== -1 ? layers[labelLayerIdx].id : undefined
             GlobalAppState.map.addLayer({
                 'id': '3d-buildings',
                 'source': 'composite',
