@@ -1,0 +1,92 @@
+<template name="var_management">
+    <div id="modalVariables" class="modal overMap">
+        <div class="modal-content">
+            <div class="col s12">
+                <label class="col s3 titleProject component-space">Variables</label>
+                {{#if IsStageSelected}}
+                    <button id='showAddNewVar' class="btn-floating light-green waves-effect waves-light">
+                        <i class="material-icons">
+                            add
+                        </i>
+                    </button>
+                {{/if}}
+            </div>
+            <ul class="collapsible" data-collapsible="accordion">
+                {{#each varSpace}}
+                    <li>   
+                        <div class="collapsible-header waves-effect waves-green" data-value="{{@index}}">
+                            {{name}} [value: {{content}}]
+                        </div>
+                        <div class="collapsible-body  right-align">
+                            <button class="remove element-rounded red darken-4 waves-effect waves-light btn">
+                                <i class="material-icons left">
+                                    delete_forever
+                                </i>
+                                Remove variable
+                            </button>
+                        </div>
+                    </li>
+                {{/each}}
+            </ul>
+            {{#if addComponentVisible}}
+                <h5 class="title">Add new variable</h5>
+                <div class="component-space input-field col s12 input-login">
+                    <i class="material-icons prefix">short_text</i>
+                    <input id="varNameField" type="text" value="{{varName}}" class="validate">
+                    <label for="short_text">Variable name</label>
+                </div>
+                {{#if materialAssignable}}
+                    <div class="component-space col s12 input-login">
+                        <i class="material-icons prefix">short_text</i>
+                        <label class="switch-title">Select a variable type</label>
+                        <div class="input-field switch" id="varTypeCheck">
+                            <label class="switch switch-padding">
+                                Property
+                                <input type="checkbox" id="stateTypeCheck">
+                                <span class="lever"></span>
+                                Material
+                            </label>
+                        </div>
+                    </div>
+                {{/if}}
+                {{#if varType}}
+                    <label  class="switch-title">Select a material</label>
+                    <ul class="material-collapsible" data-collapsible="accordion">
+                        {{#each materials.materials}}
+                            <li>   
+                                <div class="collapsible-header  waves-effect waves-light" data-value="{{@index}}">
+                                    <input class="with-gap" type="radio" id="material-selected-{{@index}}" />
+                                    <label class="material-selected" for="material-selected"></label>
+                                    {{name}}[Type: {{material_type}}]
+                                </div>
+                            </li>
+                        {{/each}}
+                    </ul>
+                {{else}}
+                    <div class="component-space input-field col s12 input-login">
+                        <i class="material-icons prefix">short_text</i>
+                        <input id="varContentField" type="text" value="{{varContent}}" class="validate">
+                        <label for="short_text">Variable content</label>
+                    </div>
+                {{/if}}
+
+                <div class="component-space input-field col s12  right-align">
+                    <button id="saveModalVar" class="element-rounded green darken-3 waves-effect waves-light btn">
+                        <i class="material-icons left">
+                            create_new_folder
+                        </i>
+                        Create
+                    </button>
+                </div>
+            {{/if}}
+            <div class="component-space input-field col s12  right-align">
+                <button id="closeModalVar" class="element-rounded grey darken-3 waves-effect waves-light btn">
+                    <i class="material-icons left">
+                        highlight_off
+                    </i>
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</template>

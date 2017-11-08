@@ -1,5 +1,5 @@
 import { Template } from 'meteor/templating';
-import { ReactiveVar, Session } from 'meteor/reactive-var';
+import { ReactiveVar } from 'meteor/reactive-var';
 import {Meteor} from 'meteor/meteor';
 import {notify} from '../toast/toast';
 import {GlobalAppState} from '../global-state';

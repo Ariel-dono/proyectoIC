@@ -61,6 +61,10 @@
     top:2%;
 }
 
+.events-enabled{
+    pointer-events: auto;
+}
+
 nav{
     z-index: 10002;
     position: fixed;
@@ -348,4 +352,17 @@ animation: luzN 1.5s ease-in-out infinite alternate !important;
     to {
         text-shadow: 0 0 1px $animationColorSecondary, 0 0 3px $animationColorSecondary, 0 0 5px $animationColorPrimary, 0 0 8px $animationColorPrimary, 0 0 10px $animationColorPrimary, 0 0 12px $animationColorPrimary, 0 0 17px $animationColorPrimary;
     }
+}
+
+.switch{
+    position: relative !important;
+}
+
+.switch-padding{
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.switch-title{
+    font-size: 1rem !important;
 }

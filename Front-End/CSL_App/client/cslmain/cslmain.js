@@ -459,12 +459,21 @@ Template.CSL.events({
         GlobalAppState.templateContext.get('projects_management').namespace.set(GlobalAppState.namespacing)
         instance.$('#modalMaterials').css("display", "none")
         instance.$('#modalProjects').css("display", "block")
+        instance.$('#modalVariables').css("display", "none")
+    },
+    'click #cslmanvar'(event, instance) {
+        event.preventDefault();
+        GlobalAppState.templateContext.get('var_management').materials.set(GlobalAppState.materials)
+        instance.$('#modalMaterials').css("display", "none")
+        instance.$('#modalProjects').css("display", "none")
+        instance.$('#modalVariables').css("display", "block")
     },
     'click #cslmanmat'(event, instance) {
         event.preventDefault();
         GlobalAppState.templateContext.get('materials_management').matspace.set(GlobalAppState.materials)
         instance.$('#modalProjects').css("display", "none")
-        instance.$('#modalMaterials').css("display", "block");
+        instance.$('#modalMaterials').css("display", "block")
+        instance.$('#modalVariables').css("display", "none")
     },
     'click #closecsl'(event, instance) {
         event.preventDefault();

@@ -18,7 +18,6 @@ Template.materials_management.onCreated(function homeOnCreated() {
     this.selectedMaterial = new ReactiveVar({})
     this.addComponentVisible = new ReactiveVar(false)
     this.editComponentVisible = new ReactiveVar(false)
-    this.asignable = new ReactiveVar(false)
     GlobalAppState.templateContext.set("materials_management", this) 
 })
 
