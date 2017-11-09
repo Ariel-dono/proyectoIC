@@ -17,8 +17,8 @@ Template.var_management.onCreated(function homeOnCreated() {
     this.varSpace = new ReactiveVar([])
     this.selectedItem = new ReactiveVar(-1)
     this.addComponentVisible = new ReactiveVar(false)
-    this.IsStageSelected = new ReactiveVar(true)
-    this.materialAssignable = new ReactiveVar(true)
+    this.IsStageSelected = new ReactiveVar(false)
+    this.materialAssignable = new ReactiveVar(false)
     this.materials = new ReactiveVar([])
     this.selectedMaterial = new ReactiveVar(-1)
     GlobalAppState.templateContext.set("var_management", this) 
@@ -63,13 +63,11 @@ Template.var_management.events({
         variable.type = instance.varType.get()
         if (instance.varType.get()){
             let myMaterials = instance.materials.get().materials
-            console.log(myMaterials)
             variable.content = myMaterials[instance.selectedMaterial.get()].id
         }
         else
             variable.content = instance.varContent.get()
         variables.push(variable)
-        console.log(variables)
         instance.varSpace.set(variables)
         instance.addComponentVisible.set(false)
         instance.varName.set('')
@@ -79,6 +77,9 @@ Template.var_management.events({
     'click #closeModalVar':function(event, instance) {
         event.preventDefault()
         instance.$('#modalVariables').css("display", "none")
+        instance.varType.set(false)
+        instance.$('#stateTypeCheck').removeAttr('Checked','Checked')
+        instance.materialAssignable.set(false)
     },
     'click #showAddNewVar':function(event, instance){
         if(instance.addComponentVisible.get() === false)

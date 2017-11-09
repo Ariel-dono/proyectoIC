@@ -224,7 +224,7 @@ Template.projects_management.events({
             {
                 if (result){
                     GlobalAppState.materials=result
-                    GlobalAppState.templateContext.get('var_management').materialAssignable.set(true)
+                    GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
                 }
             })
             GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
