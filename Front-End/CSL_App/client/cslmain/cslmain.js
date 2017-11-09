@@ -327,17 +327,30 @@ function setDataOnLayer(pData){
 
 function setControlOnLayer(pControlNumb){
     if(pControlNumb != 0){
-        /*GlobalAppState.map.on('click', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
+        GlobalAppState.map.on('click', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
             lat=e.lngLat.lat;
             lng=e.lngLat.lng;
             layerId= e.features[0].layer.id;
             idStage=getStageIdFromMap(lat,lng,layerId);
             if(shiftControl){
                 console.log("Stage ID: "+idStage)
+                let controlLevelLayer = getControlLevelById(layerId)
+                event.preventDefault();
+                GlobalAppState.templateContext.get('var_management').materials.set(GlobalAppState.materials)
+                let templateContext = GlobalAppState.templateContext.get('CSL')
+                templateContext.$('#modalMaterials').css("display", "none")
+                templateContext.$('#modalProjects').css("display", "none")
+                templateContext.$('#modalVariables').css("display", "block")
+                let varControlContext = GlobalAppState.templateContext.get('var_management')
+                if (controlLevelLayer === 8){
+                    console.log('Antes: ' + varControlContext.materialAssignable.get())
+                    varControlContext.materialAssignable.set(true)
+                    console.log('Después: ' + varControlContext.materialAssignable.get())
+                }
             }
         });
         // Change the cursor to a pointer when the mouse is over the places layer.
-        GlobalAppState.map.on('mouseenter', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
+        /*GlobalAppState.map.on('mouseenter', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
             GlobalAppState.map.getCanvas().style.cursor = 'pointer';
         });
         // Change it back to a pointer when it leaves.
@@ -375,7 +388,7 @@ function setLevelController(){
 
 function getControlLevelById(pId){
     result=-1
-    for(counter=0;counter<CONTROL_LIST;counter++){
+    for(counter=0;counter<CONTROL_LIST.length;counter++){
         if(CONTROL_LIST[counter][CONTROL_ID]==pId) return counter;
     }
     return result;
@@ -517,13 +530,14 @@ function setControlDraw(pControlLevel){
 }
 
 function initQueryElements(){
-    $('.button-collapse').sideNav('show')
-    $('#cslplano').addClass('selectedLevelActive');
+    let templateContext = GlobalAppState.templateContext.get('CSL')    
+    templateContext.$('.button-collapse').sideNav('show')
+    templateContext.$('#cslplano').addClass('selectedLevelActive');
 
-    $("#map").keydown(function (e) {
+    templateContext.$("#map").keydown(function (e) {
         shiftControl=true;
     });
-    $("#map").keyup(function (e) {
+    templateContext.$("#map").keyup(function (e) {
         shiftControl=false;
     });
 }
@@ -552,12 +566,14 @@ Template.CSL.events({
         GlobalAppState.templateContext.get('projects_management').namespace.set(GlobalAppState.namespacing)
         instance.$('#modalMaterials').css("display", "none")
         instance.$('#modalProjects').css("display", "block")
+        instance.$('#modalVariables').css("display", "none")
     },
     'click #cslmanmat'(event, instance) {
         event.preventDefault();
         GlobalAppState.templateContext.get('materials_management').matspace.set(GlobalAppState.materials)
         instance.$('#modalProjects').css("display", "none")
-        instance.$('#modalMaterials').css("display", "block");
+        instance.$('#modalMaterials').css("display", "block")
+        instance.$('#modalVariables').css("display", "none")
     },
     'click #closecsl'(event, instance) {
         event.preventDefault();
@@ -679,7 +695,6 @@ Template.CSL.events({
 //Establecer funciones de inicializacion del sistema
 Template.CSL.onRendered(
     function () {
-        initQueryElements()
         //Llave proveída a los usuarios de la herramienta de mapbox.
         mapboxgl.accessToken = 'pk.eyJ1Ijoiam9zYWx2YXJhZG8iLCJhIjoiY2o2aTM1dmoyMGNuZDJ3cDgxZ2d4eHlqYSJ9.23TgdwGE-zm5-8XUFkz2rQ';
         GlobalAppState.map = new mapboxgl.Map({
@@ -770,5 +785,13 @@ Template.CSL.onRendered(
                     GlobalAppState.namespacing=result
                 }
             })
+
+
+        initQueryElements()
+        let i = 0
+        for (var index = 0; index < CONTROL_LIST.length; index++) {
+            if (index !== 2 && index !== 6)
+                setControlOnLayer(index)
+        }
     }
 );

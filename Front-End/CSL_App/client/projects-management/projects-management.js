@@ -222,8 +222,10 @@ Template.projects_management.events({
             "Getting material supplies",
             (result) =>
             {
-                if (result)
+                if (result){
                     GlobalAppState.materials=result
+                    GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
+                }
             })
             GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
         })
