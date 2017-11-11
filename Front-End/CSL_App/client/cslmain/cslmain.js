@@ -342,11 +342,15 @@ function setControlOnLayer(pControlNumb){
                 templateContext.$('#modalProjects').css("display", "none")
                 templateContext.$('#modalVariables').css("display", "block")
                 let varControlContext = GlobalAppState.templateContext.get('var_management')
-                if (controlLevelLayer === 8){
-                    console.log('Antes: ' + varControlContext.materialAssignable.get())
+                if (controlLevelLayer === 8)
                     varControlContext.materialAssignable.set(true)
-                    console.log('Después: ' + varControlContext.materialAssignable.get())
-                }
+                varControlContext.selectedStage.set({
+                    layer: controlLevelLayer,
+                    stage: idStage
+                })
+                let varControl = GlobalAppState.varMapping.get(`${idStage}:${controlLevelLayer}`)
+                varControl = varControl ? varControl : []
+                varControlContext.varSpace.set(varControl)
             }
         });
         // Change the cursor to a pointer when the mouse is over the places layer.
@@ -396,20 +400,22 @@ function getControlLevelById(pId){
 
 
 //======================Save - Load Project========================================================================
-function parsingMapJSON() {
+export function parsingMapJSON(pControl) {
     jsonInfo={};
     jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : []
     layer = {}
-    layer.level=controlLevelNumber
+    layer.level=pControl
+    console.log(layer.level)
     currSource= GlobalAppState.map.getSource(CONTROL_LIST[layer.level][CONTROL_ID]);
     if(currSource!=undefined)
     {
         layer.stages=[]
-        for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los layers en source
+        for(counter2=0 ; counter2 < currSource._data.features.length ; counter2++){//viaja atraves de los stages en source
             currResult={}
-            currResult.variables=[]
             currResult.vectors_sequence=[]
-            currResult.id=currSource._data.features[counter2].id;
+            currResult.id=currSource._data.features[counter2].id
+            let varSpace = GlobalAppState.varMapping.get(`${currResult.id}:${pControl}`)
+            currResult.variables = varSpace ? varSpace : []
             if(CONTROL_LIST[layer.level][CONTROL_TYPE]==CONTROL_FILLTYPE){
                 for(counter3=0; counter3<currSource._data.features[counter2].geometry.coordinates[0].length;counter3++)
                 {   
@@ -430,8 +436,13 @@ function parsingMapJSON() {
             }
             layer.stages.push(currResult)
         }
-        if (jsonInfo.layers[layer.level])
-            jsonInfo.layers[layer.level] = layer
+        let indexInEdition = jsonInfo.layers.findIndex((savedlayer)=>{
+            console.log(savedlayer)
+            return savedlayer.level === layer.level
+        })
+        console.log(indexInEdition)
+        if (jsonInfo.layers[indexInEdition])
+            jsonInfo.layers[indexInEdition] = layer
         else
             jsonInfo.layers.push(layer)
     }
@@ -484,6 +495,11 @@ export function loadProject(pProject){
             }
             feature.id=pProject.project_instance.layers[counter].stages[counter2].id;
             feature.geometry=geometry;
+
+            let key = `${feature.id}:${pProject.project_instance.layers[counter].level}`
+            GlobalAppState.varMapping.set(key, pProject.project_instance.layers[counter].stages[counter2].variables)
+            console.log("la wea")
+            console.log(GlobalAppState.varMapping)
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
@@ -661,7 +677,7 @@ Template.CSL.events({
         if(CONTROL_LIST.length>controlLevelNumber){
             isDataSet=setDataOnLayer(GlobalAppState.draw.getAll());//establece los datos en el layer
             if(isDataSet){
-                GlobalAppState.project.project_instance.layers = parsingMapJSON().layers;
+                GlobalAppState.project.project_instance.layers = parsingMapJSON(controlLevelNumber).layers;
                 Meteor.call("saveProject", GlobalAppState.project,
                     (error, result) => {
                         if(result.code > 0){
