@@ -1,6 +1,7 @@
 import { notify } from './toast/toast';
 
 export class GlobalAppState {
+    static varMapping = new Map();
     static templateContext = new Map()
     username = ''
     namespacing = {}

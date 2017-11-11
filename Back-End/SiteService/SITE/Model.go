@@ -60,7 +60,7 @@ type VectorSequence struct {
 type Variable struct {
 	Name		string		`json:"name"`
 	Content		string		`json:"content"`
-	VarType		int		`json:"var_type"`
+	VarType		bool		`json:"var_type"`
 }
 
 type Point struct {

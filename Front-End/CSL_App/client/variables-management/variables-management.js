@@ -1,14 +1,14 @@
-import { Template } from 'meteor/templating';
-import { ReactiveVar } from 'meteor/reactive-var';
-import { notify } from '../toast/toast';
-import 'materialize-css';
+import { Template } from 'meteor/templating'
+import { ReactiveVar } from 'meteor/reactive-var'
+import { notify } from '../toast/toast'
+import 'materialize-css'
 
-import * as mapboxgl from 'mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import turf from '@turf/turf';
+import * as mapboxgl from 'mapbox-gl'
+import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import turf from '@turf/turf'
 
-import { GlobalAppState } from '../global-state';
-import {loadProject} from '../cslmain/cslmain';
+import { GlobalAppState } from '../global-state'
+import {loadProject, parsingMapJSON} from '../cslmain/cslmain'
 
 Template.var_management.onCreated(function homeOnCreated() {
     this.varName = new ReactiveVar('')
@@ -21,6 +21,10 @@ Template.var_management.onCreated(function homeOnCreated() {
     this.materialAssignable = new ReactiveVar(false)
     this.materials = new ReactiveVar([])
     this.selectedMaterial = new ReactiveVar(-1)
+    this.selectedStage = new ReactiveVar({
+        layer: -1,
+        stage: -1
+    })
     GlobalAppState.templateContext.set("var_management", this) 
 })
 
@@ -60,7 +64,8 @@ Template.var_management.events({
             variables = []
         let variable = {}
         variable.name = instance.varName.get()
-        variable.type = instance.varType.get()
+        let isMaterial = instance.varType.get()
+        variable.var_type = isMaterial ? 1 : 0
         if (instance.varType.get()){
             let myMaterials = instance.materials.get().materials
             variable.content = myMaterials[instance.selectedMaterial.get()].id
@@ -69,10 +74,36 @@ Template.var_management.events({
             variable.content = instance.varContent.get()
         variables.push(variable)
         instance.varSpace.set(variables)
+        let stageSelected = instance.selectedStage.get()
+        let key = `${stageSelected.stage}:${stageSelected.layer}`
+        GlobalAppState.varMapping.set(key, variables)
         instance.addComponentVisible.set(false)
         instance.varName.set('')
         instance.varContent.set('')
         instance.$('#stateTypeCheck').removeAttr('Checked','Checked')
+        GlobalAppState.project.project_instance.layers = parsingMapJSON(stageSelected.layer).layers;
+        Meteor.call("saveProject", GlobalAppState.project,
+            (error, result) => {
+                if(result.code > 0){
+                    Meteor.call("getProject", {key:GlobalAppState.project.key},
+                        (error, result) => {
+                            if(result !== undefined){
+                                GlobalAppState.project.project_instance = result;                     
+                                notify("Proyecto guardado", 3000, 'rounded')
+                            }
+                            else{
+                                notify("Error guardando el proyecto", 3000, 'rounded')        
+                            }
+                        }
+                    )
+                    //notify("Project: " + result.state.message, 3000, 'rounded')
+                }
+                else{
+                    //notify("Project: " + result.state.message, 3000, 'rounded')        
+                }
+            }
+        )
+        console.log(GlobalAppState.varMapping)
     },
     'click #closeModalVar':function(event, instance) {
         event.preventDefault()
@@ -91,11 +122,15 @@ Template.var_management.events({
         var head = variables.slice(0, toRemoveIndex)
         var tail = variables.slice(toRemoveIndex+1, variables.legth)
         var newVarSpaceState = head.concat(tail)
+        let stageSelected = instance.selectedStage.get()
+        let key = `${stageSelected.stage}:${stageSelected.layer}`
+        GlobalAppState.varMapping.set(key, newVarSpaceState)
         instance.varSpace.set(newVarSpaceState)
         instance.addComponentVisible.set(false)
         instance.varName.set('')
         instance.varContent.set('')
         instance.$('#stateTypeCheck').removeAttr('Checked','Checked')
+        console.log(GlobalAppState.varMapping)
     },
 
     'click .collapsible':function(event,instance){
