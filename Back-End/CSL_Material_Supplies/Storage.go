@@ -23,6 +23,7 @@ func put(instance MaterialSupplies, response *Response){
 		response.Code = 1
 		response.State.Message = "Espacio de materiales creado"
 	}
+	bucket.Close();
 }
 
 func getById(key string, myMaterials *MaterialSupplies, response *Response){
@@ -35,6 +36,7 @@ func getById(key string, myMaterials *MaterialSupplies, response *Response){
 		response.Code = 1
 		response.State.Message = "Espacio de materiales obtenido"
 	}
+	bucket.Close();
 }
 
 func remove(key string, response *Response){
@@ -48,4 +50,5 @@ func remove(key string, response *Response){
 		response.Code = 1
 		response.State.Message = "Proyecto eliminado"
 	}
+	bucket.Close();
 }

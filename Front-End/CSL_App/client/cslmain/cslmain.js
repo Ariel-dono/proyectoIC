@@ -335,7 +335,6 @@ function setControlOnLayer(pControlNumb){
             if(shiftControl){
                 console.log("Stage ID: "+idStage)
                 let controlLevelLayer = getControlLevelById(layerId)
-                event.preventDefault();
                 GlobalAppState.templateContext.get('var_management').materials.set(GlobalAppState.materials)
                 let templateContext = GlobalAppState.templateContext.get('CSL')
                 templateContext.$('#modalMaterials').css("display", "none")

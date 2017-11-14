@@ -1,7 +1,7 @@
 {
-    "name": "My Meteor App",
+    "name": "CSL_Desktop_App",
     "version": "0.0.1",
-    "projectName": "MyMeteorApp",
+    "projectName": "CSLDesktopApp",
     "devTools": true,
     "devtron": true,
     "desktopHCP": true,
@@ -16,7 +16,13 @@
         "icon": "@assets/meteor.png",
         "_windows": {
             "icon": "@assets/meteor.ico"
-        }
+        },
+        "resizable":false,
+        "minimizable": false,
+        "width": 1450,
+        "height":950,
+        "minWidth": 1450,
+        "minHeight":950
     },
     "windowDev": {
     },
@@ -33,14 +39,14 @@
     },
     "dependencies": {},
     "packageJsonFields": {
-        "description": "My Meteor App",
-        "author": "Me, Myself And I",
+        "description": "CSL Desktop App",
+        "author": "Construction Optimization Project",
         "private": true
     },
     "builderOptions": {
         "win": {
-            "title": "My Meteor App",
-            "authors": "Me, Myself And I",
+            "title": "CSLDesktopApp",
+            "authors": "Construction Optimization Project",
             "target": "squirrel"
         },
         "squirrelWindows": {
@@ -49,7 +55,7 @@
         },
         "icon": ".desktop/assets/meteor.ico",
         "appId": "meteor.app",
-        "productName": "My Meteor App",
+        "productName": "CSL Desktop App",
         "compression": "maximum",
         "mac": {
             "icon": ".desktop/assets/meteor.icns"
@@ -63,8 +69,8 @@
                 { "x": 63, "y": 190, "type": "file" }
             ],
             "window": {
-                "width": 480,
-                "height": 300
+                "width": 900,
+                "height": 700
             }
         }    },
     "packagerOptions": {
@@ -73,14 +79,14 @@
             "icon": ".desktop/assets/meteor.icns"
         },
         "version-string": {
-            "CompanyName": "My Company",
-            "LegalCopyright": "Copyright 2016 My Company - All rights reserved.",
-            "FileDescription": "MyMeteorApp",
+            "CompanyName": "Contruction Optimization Project",
+            "LegalCopyright": "Copyright 2017 Contruction Optimization Project - All rights reserved.",
+            "FileDescription": "CSLDesktopApp",
             "OriginalFilename": "MyMeteorApp.exe",
             "FileVersion": "@version",
             "ProductVersion": "@version",
-            "ProductName": "MyMeteorApp",
-            "InternalName": "MyMeteorApp.exe"
+            "ProductName": "CSLDesktopApp",
+            "InternalName": "CSLDesktopApp.exe"
         }
     }
 }

@@ -30,6 +30,7 @@ func update_Aux (instance RequestingProject, bucket gocb.Bucket, response *Respo
 		response.Code = 1;
 		response.State.Message = "Proyecto creado";
 	}
+	bucket.Close();
 }
 
 func getById(key string, project *Project, response *Response){
@@ -42,6 +43,7 @@ func getById(key string, project *Project, response *Response){
 		response.Code = 1;
 		response.State.Message = "Proyecto Eliminado";
 	}
+	bucket.Close();
 }
 
 func remove(key string, response *Response){
@@ -55,4 +57,5 @@ func remove(key string, response *Response){
 		response.Code = 1;
 		response.State.Message = "Proyecto eliminado";
 	}
+	bucket.Close();
 }
