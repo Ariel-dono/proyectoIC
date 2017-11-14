@@ -65,7 +65,7 @@ Template.var_management.events({
         let variable = {}
         variable.name = instance.varName.get()
         let isMaterial = instance.varType.get()
-        variable.var_type = isMaterial ? 1 : 0
+        variable.var_type = isMaterial
         if (instance.varType.get()){
             let myMaterials = instance.materials.get().materials
             variable.content = myMaterials[instance.selectedMaterial.get()].id

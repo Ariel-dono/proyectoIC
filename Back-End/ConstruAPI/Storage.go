@@ -46,6 +46,7 @@ func update_Aux (user User, bucket gocb.Bucket, response *Response){
 	}
 	response.Code = 200;
 	response.State.Message = "Operacion Exitosa";
+	bucket.Close();
 }
 
 func getById(id string, user *User, response *Response){
@@ -55,6 +56,7 @@ func getById(id string, user *User, response *Response){
 		response.Code = -1;
 		response.State.Message = "Usuario no existe";
 	}
+	bucket.Close();
 }
 
 func removeUser(id string, response *Response){
@@ -68,6 +70,7 @@ func removeUser(id string, response *Response){
 		response.Code = 1;
 		response.State.Message = "Usuario eliminado";
 	}
+	bucket.Close();
 }
 
 func login(auth LoginRequest, response *Response) {

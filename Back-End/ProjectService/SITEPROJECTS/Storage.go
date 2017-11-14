@@ -24,6 +24,7 @@ func getNamespace(key string, namespace *Namespace, response *Response){
 		response.Code = 1;
 		response.State.Message = "Namespace Eliminado";
 	}
+	bucket.Close();
 }
 
 func CreateBucket (user string, response *Response){
@@ -38,7 +39,7 @@ func CreateBucket (user string, response *Response){
 		response.Code = 1;
 		response.State.Message = "Operacion Exitosa";
 	}
-
+	bucket.Close();
 }
 
 func DeleteBucket (user string, response *Response){
@@ -52,6 +53,7 @@ func DeleteBucket (user string, response *Response){
 		response.Code = 1;
 		response.State.Message = "Operacion Exitosa";
 	}
+	bucket.Close();
 }
 
 func UpdateProjectName (user string, response *Response, namespace Namespace){
@@ -64,4 +66,5 @@ func UpdateProjectName (user string, response *Response, namespace Namespace){
 		response.Code = 1;
 		response.State.Message = "Operacion Exitosa";
 	}
+	bucket.Close();
 }
