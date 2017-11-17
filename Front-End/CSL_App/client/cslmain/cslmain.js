@@ -26,6 +26,8 @@ let CONTROL_FILLTYPE = 0;
 let CONTROL_LINETYPE = 1;
 let CONTROL_CIRCLETYPE = 2;
 
+let CSLG='cslg'
+
 let opacity = 0.6;
 
 let shiftControl=false;
@@ -91,20 +93,25 @@ function initLayer(pControlLevel){
     return newLayer;
 }
 
-function temporal(data){
-    GlobalAppState.map.addLayer({
-        'id': 'maine',
-        'type': 'fill',
+
+function drawCircle(parID,pData,pRadius,pColor,pOpacity){
+    var center = pData;
+    var radius = pRadius;
+    var circle = turf.circle(center, radius, 10,'kilometers',{});
+    var fCollection = turf.featureCollection([circle]);
+    var gJson={
+        'id': parID,
+        'type':'fill',
         'source': {
             'type': 'geojson',
-            'data': data
+            'data': fCollection
         },
-        'layout': {},
         'paint': {
-            'fill-color': '#088',
-            'fill-opacity': 0.8
+            'fill-color': pColor,
+            'fill-opacity': pOpacity
         }
-    });
+    }
+    return gJson
 }
 
 
@@ -116,6 +123,8 @@ function initAllLevels(){
             features: []
         });
     }
+    if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
+    if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
     controlLevelNumber=0
 }
 
@@ -306,6 +315,9 @@ function createLayer(pControlNumb){
 }
 
 function setSourceOnLayer(pControlLevelNumber,pData){
+    //Delete G if is it showed
+    if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
+    if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
     if(layerExists(pControlLevelNumber)){
         deleteLayer(pControlLevelNumber)
     }
@@ -320,20 +332,67 @@ function setSourceOnLayer(pControlLevelNumber,pData){
 function setDataOnLayer(pData){
     if (isValidatedLevel(pData,controlLevelNumber) || cleanMode){
         setSourceOnLayer(controlLevelNumber,pData);
+        cleanMode=false;
         return true;
     }
     return false;
 }   
 
+function findIdOnList(pList, pId){
+    if(pList)
+        for(counter = 0 ; counter< pList.length ; counter++)
+        {
+            if(pId === pList[counter].name)
+            { 
+                return counter;
+            }
+        }
+    return undefined;
+}
+
 function setControlOnLayer(pControlNumb){
     if(pControlNumb != 0){
+        if(pControlNumb==7){
+            GlobalAppState.map.on('dblclick', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
+                lat=e.lngLat.lat;
+                lng=e.lngLat.lng;
+                layerId= e.features[0].layer.id;
+                cStage=getStageFromMap(lat,lng,layerId);
+                idStage=cStage.id;
+                stagecoordinates = cStage.geometry.coordinates
+                let controlLevelLayer = getControlLevelById(layerId)
+                var list = GlobalAppState.varMapping.get(`${idStage}:${controlLevelLayer}`)
+                position = findIdOnList(list,'mts')
+                polygonStage= turf.polygon(stagecoordinates)
+                centroidP= turf.centroid(polygonStage)
+                if(position!=undefined && centroidP!=undefined)
+                {
+                    if(position>=0){
+                        RadiusOnMeters=parseFloat(list[position].content)/1000
+                        if(RadiusOnMeters)
+                            if(RadiusOnMeters>0){
+                                if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
+                                if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
+                                var circ=drawCircle(CSLG,[centroidP.geometry.coordinates[0],centroidP.geometry.coordinates[1]],RadiusOnMeters,'#000000',0.5)
+                                GlobalAppState.map.addLayer(circ);
+                            }
+                    }
+                }
+                else{
+                    RadiusOnMeters=0.0001/1000 
+                    if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
+                    if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
+                    var circ=drawCircle(CSLG,[centroidP.geometry.coordinates[0],centroidP.geometry.coordinates[1]],RadiusOnMeters,'#000000',0.5)
+                    GlobalAppState.map.addLayer(circ);
+                }
+            });
+        }
         GlobalAppState.map.on('click', CONTROL_LIST[pControlNumb][CONTROL_ID], function (e) {
             lat=e.lngLat.lat;
             lng=e.lngLat.lng;
             layerId= e.features[0].layer.id;
-            idStage=getStageIdFromMap(lat,lng,layerId);
+            idStage=getStageFromMap(lat,lng,layerId).id;
             if(shiftControl){
-                console.log("Stage ID: "+idStage)
                 let controlLevelLayer = getControlLevelById(layerId)
                 GlobalAppState.templateContext.get('var_management').materials.set(GlobalAppState.materials)
                 let templateContext = GlobalAppState.templateContext.get('CSL')
@@ -352,18 +411,10 @@ function setControlOnLayer(pControlNumb){
                 varControlContext.varSpace.set(varControl)
             }
         });
-        // Change the cursor to a pointer when the mouse is over the places layer.
-        /*GlobalAppState.map.on('mouseenter', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
-            GlobalAppState.map.getCanvas().style.cursor = 'pointer';
-        });
-        // Change it back to a pointer when it leaves.
-        GlobalAppState.map.on('mouseleave', CONTROL_LIST[pControlNumb][CONTROL_ID], function () {
-            GlobalAppState.map.getCanvas().style.cursor = '';
-        });*/
     }
 }
 
-function getStageIdFromMap(pLat,pLng,pLayerId){
+function getStageFromMap(pLat,pLng,pLayerId){
     try{
         mapSource=GlobalAppState.map.getSource(pLayerId); 
         stageList=mapSource._data.features;
@@ -373,7 +424,7 @@ function getStageIdFromMap(pLat,pLng,pLayerId){
             id = stageList[counter].id;
             poly=turf.polygon(geo.coordinates);
             if(turf.inside(point,poly)){
-                return id;
+                return stageList[counter];
             }
         }
     }
@@ -404,7 +455,6 @@ export function parsingMapJSON(pControl) {
     jsonInfo.layers = GlobalAppState.project.project_instance.layers ? GlobalAppState.project.project_instance.layers : []
     layer = {}
     layer.level=pControl
-    console.log(layer.level)
     currSource= GlobalAppState.map.getSource(CONTROL_LIST[layer.level][CONTROL_ID]);
     if(currSource!=undefined)
     {
@@ -436,17 +486,13 @@ export function parsingMapJSON(pControl) {
             layer.stages.push(currResult)
         }
         let indexInEdition = jsonInfo.layers.findIndex((savedlayer)=>{
-            console.log(savedlayer)
             return savedlayer.level === layer.level
         })
-        console.log(indexInEdition)
         if (jsonInfo.layers[indexInEdition])
             jsonInfo.layers[indexInEdition] = layer
         else
             jsonInfo.layers.push(layer)
     }
-    console.log("json")
-    console.log(jsonInfo)
     return jsonInfo;
 }
 
@@ -472,7 +518,6 @@ export function loadProject(pProject){
             feature.properties=new Object();
             feature.type="Feature";
             var geometry=new Object();
-            console.log("level de los elementos")
             var Clevel=pProject.project_instance.layers[counter].level
             geometry.coordinates=new Array();
             if(CONTROL_LIST[Clevel][CONTROL_TYPE]==CONTROL_FILLTYPE){
@@ -497,13 +542,9 @@ export function loadProject(pProject){
 
             let key = `${feature.id}:${pProject.project_instance.layers[counter].level}`
             GlobalAppState.varMapping.set(key, pProject.project_instance.layers[counter].stages[counter2].variables)
-            console.log("la wea")
-            console.log(GlobalAppState.varMapping)
             levelList[pProject.project_instance.layers[counter].level].features.push(feature);
         }
     }
-    console.log("levelList")
-    console.log(levelList)
     //Pintar los niveles
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter;
@@ -721,16 +762,8 @@ Template.CSL.onRendered(
             hash: true
         });
         
-        
-
-        
-        
-        
-        
-        
         GlobalAppState.map.on('load', function () {
             initLayers()
-
             GlobalAppState.draw = new MapboxDraw({
                 displayControlsDefault: false,
                 controls: {
@@ -745,6 +778,7 @@ Template.CSL.onRendered(
             setControlDraw(controlLevelNumber)//Set the button of the first level
 
             initAllLevels(); //initialize all the layers on the map.
+
             var layers = GlobalAppState.map.getStyle().layers.reverse()
             var labelLayerIdx = layers.findIndex(function (layer) {
                 return layer.type !== 'symbol';
@@ -771,7 +805,6 @@ Template.CSL.onRendered(
                     'fill-extrusion-opacity': .7
                 }
             }, labelLayerId);
-
         });
         GlobalAppState.project = {
             key: "",
