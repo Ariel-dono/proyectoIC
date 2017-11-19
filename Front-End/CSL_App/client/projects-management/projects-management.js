@@ -70,7 +70,9 @@ Template.projects_management.events({
                 (result) =>
                 {
                     GlobalAppState.materials=result
+                    GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
                 })
+                GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
             })
         }
         else{

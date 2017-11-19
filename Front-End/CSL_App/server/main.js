@@ -1,6 +1,7 @@
-import { Meteor } from 'meteor/meteor';
-import {HTTP} from 'meteor/http';
-import {state} from './global.state';
+import { Meteor } from 'meteor/meteor'
+import {HTTP} from 'meteor/http'
+import {state} from './global.state'
+import {WebApp} from 'meteor/webapp'
 
 const login = 'user/login/'
 const signin = 'user/insert/'
@@ -54,4 +55,8 @@ if (Meteor.isServer) {
 
 
 Meteor.startup(() => {
+    WebApp.rawConnectHandlers.use(function(req, res, next) {
+        res.setHeader("Access-Control-Allow-Origin", "*")
+        return next()
+    });
 });
