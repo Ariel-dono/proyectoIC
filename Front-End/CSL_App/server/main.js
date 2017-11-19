@@ -55,7 +55,7 @@ if (Meteor.isServer) {
 
 
 Meteor.startup(() => {
-    WebApp.rawConnectHandlers.use(function(req, res, next) {
+    WebApp.rawConnectHandlers.use(function(req, res, next) { // Permite el acceso desde otros Dominios - IPs
         res.setHeader("Access-Control-Allow-Origin", "*")
         return next()
     });

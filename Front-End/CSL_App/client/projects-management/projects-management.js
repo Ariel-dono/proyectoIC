@@ -54,25 +54,31 @@ Template.projects_management.events({
             {
                 GlobalAppState.namespacing=result
                 instance.namespace.set(result)
-            })
-            GlobalAppState.project.key = projectId
-            GlobalAppState.project.project_instance.name = projectName
-            GlobalAppState.updateFeature("saveProject", GlobalAppState.project, "getProject", 
-            {key:GlobalAppState.project.key}, "Creating project",
-            (result) =>
-            {
-                GlobalAppState.project.project_instance=result
-                instance.projectName.set('')
-                instance.addComponentVisible.set(false)
-                GlobalAppState.materials.project_id = GlobalAppState.project.key
-                GlobalAppState.updateFeature("saveMaterials", GlobalAppState.materials, "getMaterials", 
-                {key:GlobalAppState.project.key}, "Creating material supplies space",
+                GlobalAppState.project.key = projectId
+                GlobalAppState.project.project_instance.name = projectName
+                GlobalAppState.project.project_instance.layers = []
+                GlobalAppState.project.project_instance.zoom = 0
+                GlobalAppState.project.project_instance.reference = {
+                    x: -1,
+                    y: -1
+                }
+                GlobalAppState.updateFeature("saveProject", GlobalAppState.project, "getProject", 
+                {key:GlobalAppState.project.key}, "Creating project",
                 (result) =>
                 {
-                    GlobalAppState.materials=result
-                    GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
+                    GlobalAppState.project.project_instance=result
+                    instance.projectName.set('')
+                    instance.addComponentVisible.set(false)
+                    GlobalAppState.materials.project_id = GlobalAppState.project.key
+                    GlobalAppState.updateFeature("saveMaterials", GlobalAppState.materials, "getMaterials", 
+                    {key:GlobalAppState.project.key}, "Creating material supplies space",
+                    (result) =>
+                    {
+                        GlobalAppState.materials=result
+                        GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
+                    })
+                    GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
                 })
-                GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
             })
         }
         else{
