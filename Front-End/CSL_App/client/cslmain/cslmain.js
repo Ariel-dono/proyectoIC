@@ -636,6 +636,18 @@ Template.CSL.events({
         GlobalAppState.isProjectSelected = false;
         instance.flagControl.set(false)
         Router.go('/login');
+        GlobalAppState.project = {
+            key: "",
+            project_instance: {
+                layers: [],
+                name: "",
+                zoom: 0,
+                reference: {
+                    x: -1,
+                    y: -1
+                }
+            }
+        }
     },
     //Boton izquierda
     'click #cslplano'(event, instance) {
