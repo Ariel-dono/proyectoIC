@@ -76,6 +76,7 @@ Template.projects_management.events({
                     {
                         GlobalAppState.materials=result
                         GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
+                        GlobalAppState.templateContext.get('CSL').flagControl.set(true);
                     })
                     GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
                 })
@@ -178,6 +179,7 @@ Template.projects_management.events({
                         }
                         
                         GlobalAppState.templateContext.get('CSL').selectedProject.set(false)
+                        GlobalAppState.templateContext.get('CSL').flagControl.set(false);
                         instance.editComponentVisible.set(false)
                         instance.addComponentVisible.set(false)        
                         cleanProject();
@@ -233,6 +235,7 @@ Template.projects_management.events({
                 if (result){
                     GlobalAppState.materials=result
                     GlobalAppState.templateContext.get('var_management').IsStageSelected.set(true)
+                    GlobalAppState.templateContext.get('CSL').flagControl.set(true);
                 }
             })
             GlobalAppState.templateContext.get('CSL').selectedProject.set(true)
