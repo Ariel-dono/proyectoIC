@@ -311,13 +311,10 @@ $animationColorSecondary:#fff;
 
 .selectedLevel {
     font: 'Helvetica Neue';
-    text-align: center;
     text-decoration: none !important;
     -webkit-transition: all 0.5s !important;
     -moz-transition: all 0.5s !important;
     transition: all 0.5s !important;
-    font-size: 1.6em !important;
-    font-weight: bold !important;
     color: $baseLevelColor !important;
 }
 
@@ -365,4 +362,16 @@ animation: luzN 1.5s ease-in-out infinite alternate !important;
 
 .switch-title{
     font-size: 1rem !important;
+}
+
+.iconified_menu{
+    min-width: 50px;
+    max-width: 50px;
+    min-height: 50px;
+    max-height: 50px;
+}
+
+.side-nav li > a{
+    height: 60px !important;
+    padding: 0;
 }
