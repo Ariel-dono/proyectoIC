@@ -78,18 +78,6 @@ function initLayer(pControlLevel){
             "line-cap": "round"
         };
     }
-    else if (CONTROL_LIST[pControlLevel][CONTROL_TYPE] == CONTROL_CIRCLETYPE) {
-        newLayer.type = 'circle'
-        newLayer.paint =
-        {
-            "circle-radius": {
-                'base': 1.75,
-                'stops': [[12, 1], [23, 50]]
-            },
-            "circle-color": CONTROL_LIST[pControlLevel][CONTROL_COLOR],
-            'circle-opacity': opacity
-        };
-    }
     return newLayer;
 }
 
@@ -116,6 +104,7 @@ function drawCircle(parID,pData,pRadius,pColor,pOpacity){
 
 
 function initAllLevels(){
+    initCrane()
     for(counter=0;counter<CONTROL_LIST.length;counter++){
         controlLevelNumber=counter
         setDataOnLayer({
@@ -123,9 +112,15 @@ function initAllLevels(){
             features: []
         });
     }
-    if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
-    if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
     controlLevelNumber=0
+}
+
+function initCrane(){
+    RadiusOnMeters=0.0001/1000 
+    deleteCrane()
+    var circ=drawCircle(CSLG,[0,0],RadiusOnMeters,'#000000',0.5)
+    GlobalAppState.map.addLayer(circ);
+    
 }
 
 //======================TURF: Validaciones de Colisiones de los Stages========================================================================
@@ -316,8 +311,6 @@ function createLayer(pControlNumb){
 
 function setSourceOnLayer(pControlLevelNumber,pData){
     //Delete G if is it showed
-    if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
-    if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
     if(layerExists(pControlLevelNumber)){
         deleteLayer(pControlLevelNumber)
     }
@@ -350,6 +343,13 @@ function findIdOnList(pList, pId){
     return undefined;
 }
 
+function deleteCrane(){
+    if (GlobalAppState.map.getLayer(CSLG)) 
+        GlobalAppState.map.removeLayer(CSLG)
+    if (GlobalAppState.map.getSource(CSLG)) 
+        GlobalAppState.map.removeSource(CSLG)
+}
+
 function setControlOnLayer(pControlNumb){
     if(pControlNumb != 0){
         if(pControlNumb==7){
@@ -371,8 +371,7 @@ function setControlOnLayer(pControlNumb){
                         RadiusOnMeters=parseFloat(list[position].content)/1000
                         if(RadiusOnMeters)
                             if(RadiusOnMeters>0){
-                                if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
-                                if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
+                                deleteCrane()
                                 var circ=drawCircle(CSLG,[centroidP.geometry.coordinates[0],centroidP.geometry.coordinates[1]],RadiusOnMeters,'#000000',0.5)
                                 GlobalAppState.map.addLayer(circ);
                             }
@@ -380,8 +379,7 @@ function setControlOnLayer(pControlNumb){
                 }
                 else{
                     RadiusOnMeters=0.0001/1000 
-                    if (GlobalAppState.map.getLayer(CSLG)) GlobalAppState.map.removeSource(CSLG)
-                    if (GlobalAppState.map.getSource(CSLG)) GlobalAppState.map.removeSource(CSLG)
+                    deleteCrane()
                     var circ=drawCircle(CSLG,[centroidP.geometry.coordinates[0],centroidP.geometry.coordinates[1]],RadiusOnMeters,'#000000',0.5)
                     GlobalAppState.map.addLayer(circ);
                 }
