@@ -221,9 +221,6 @@ function isValidatedLevel(pData, pControlLevelNumber){
             return true;//A futuro si se desea modificar el area del sitio, se debera validar que esta area contiene a todos los demas.
         }
     }
-    else if(pControlLevelNumber==6){// 
-        return true;
-    }
     else if (pControlLevelNumber<=CONTROL_LIST.length && pControlLevelNumber>0){
         if(pData.features.length>0){//Haya al menos una figura de entrada.
             if(CONTROL_FILLTYPE==CONTROL_LIST[pControlLevelNumber][CONTROL_TYPE]){
@@ -749,7 +746,6 @@ Template.CSL.events({
                         }
                     }
                 )
-                setLevelController();
                 setControlDraw(controlLevelNumber);
                 updateUIControlLevel(controlLevelNumber);//Muestra en ui nivel actual
                 GlobalAppState.draw.deleteAll();
