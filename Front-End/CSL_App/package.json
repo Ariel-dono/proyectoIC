@@ -18,6 +18,12 @@
     "xml": "^1.0.1"
   },
   "devDependencies": {
+    "karma": "^1.7.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-firefox-launcher": "^1.0.1",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-requirejs": "^1.1.0",
     "materialize-css": "^0.100.2",
     "meteor-desktop": "^0.8.1"
   }
