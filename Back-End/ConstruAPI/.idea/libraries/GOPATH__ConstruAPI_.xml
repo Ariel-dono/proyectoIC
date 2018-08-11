@@ -5,7 +5,6 @@
       <root url="file://$USER_HOME$/go/src/github.com" />
       <root url="file://$USER_HOME$/go/src/gopkg.in" />
     </CLASSES>
-    <JAVADOC />
     <SOURCES>
       <root url="file://$USER_HOME$/go/src/golang.org" />
       <root url="file://$USER_HOME$/go/src/github.com" />

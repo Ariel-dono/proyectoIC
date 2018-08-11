@@ -3,13 +3,19 @@ package main
 import (
 	"gopkg.in/couchbase/gocb.v1"
 	"strings"
+	"fmt"
 )
 
 const bucketName string = "Users";
 
 func initialize() gocb.Bucket{
 	cluster, _ := gocb.Connect("couchbase://localhost")
-	bucket, _ := cluster.OpenBucket(bucketName, "")
+	cluster.Authenticate(gocb.PasswordAuthenticator{
+		Username: "Administrator",
+		Password: "quantumDot",
+	})
+	bucket, error := cluster.OpenBucket(bucketName, "")
+	fmt.Println(error)
 	bucket.Manager("", "").CreatePrimaryIndex("", true, false)
 	return *bucket;
 }
