@@ -9,6 +9,10 @@ const bucketName string = "Namespacing";
 
 func initialize() gocb.Bucket {
 	cluster, _ := gocb.Connect("couchbase://localhost")
+	cluster.Authenticate(gocb.PasswordAuthenticator{
+		Username: "Administrator",
+		Password: "quantumDot",
+	})
 	bucket, _ := cluster.OpenBucket(bucketName, "")
 	bucket.Manager("", "").CreatePrimaryIndex("", true, false)
 	return *bucket;

@@ -7,5 +7,5 @@ import (
 
 func main() {
 	router := NewRouter();
-	log.Fatal(http.ListenAndServe(":10125", router));
+	log.Fatal(http.ListenAndServe("localhost:10125", router));
 }
